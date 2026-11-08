@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Data and model weights (never commit datasets or large checkpoints)
+data/
+datasets/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.zip
+*.tar
+*.tar.gz
+
+# Experiment tracking / caches
+wandb/
+runs/
+.cache/
+outputs/tmp/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

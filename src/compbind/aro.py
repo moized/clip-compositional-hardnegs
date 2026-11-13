@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import os
 
-import numpy as np
 import pandas as pd
 
 from .coco import CocoImages, coco_id
@@ -140,34 +139,3 @@ def attribution_groups(table: pd.DataFrame) -> pd.Series:
     """True for rows whose attribute pair has at least 25 test cases."""
     counts = table["group"].map(table["group"].value_counts())
     return counts >= MIN_ATTRIBUTE_COUNT
-
-
-def macro_accuracy(table: pd.DataFrame, keep: pd.Series, column: str = "correct") -> float:
-    """Mean of per-group accuracies over the kept rows."""
-    kept = table[keep]
-    return float(kept.groupby("group")[column].mean().mean())
-
-
-def summarize(name: str, table: pd.DataFrame, column: str = "correct") -> dict:
-    """Headline numbers for one ARO task from its per-item table."""
-    out = {"n_items": int(len(table)), "micro_accuracy": float(table[column].mean())}
-    if name == "vg_relation":
-        keep = relation_groups(table)
-    elif name == "vg_attribution":
-        keep = attribution_groups(table)
-    else:
-        out["accuracy"] = out["micro_accuracy"]
-        return out
-    out["macro_accuracy"] = macro_accuracy(table, keep, column)
-    out["n_groups"] = int(table[keep]["group"].nunique())
-    out["n_items_in_macro"] = int(keep.sum())
-    out["micro_accuracy_kept_groups"] = float(table[keep][column].mean())
-    out["accuracy"] = out["macro_accuracy"]
-    return out
-
-
-def per_group_table(table: pd.DataFrame) -> pd.DataFrame:
-    """Accuracy and count per relation / attribute pair (like ARO's Table 2)."""
-    grouped = table.groupby("group")["correct"].agg(["mean", "size"]).reset_index()
-    grouped.columns = ["group", "accuracy", "count"]
-    return grouped.sort_values("count", ascending=False).reset_index(drop=True)

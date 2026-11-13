@@ -1,0 +1,8 @@
+# Packages added on top of Kaggle's Python image, which already provides PyTorch,
+# torchvision, transformers, spaCy, NLTK, NumPy, pandas, matplotlib and PyYAML.
+# The notebook also saves `pip freeze` to results/environment.txt, so the exact
+# versions behind the reported numbers are recorded.
+open_clip_torch==4.2.2
+clip-benchmark==1.6.2
+gdown==6.5.1
+pytest

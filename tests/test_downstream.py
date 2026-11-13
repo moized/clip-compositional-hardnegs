@@ -66,7 +66,7 @@ def test_zero_shot_accuracy(monkeypatch):
     monkeypatch.setattr(downstream, "build_zero_shot_dataset",
                         lambda name, root, transform, limit=None, seed=0:
                         (data, ["0", "1", "2", "3"], ["class {c}", "a photo of class {c}"]))
-    out = downstream.zero_shot(fake_bundle(), "fake", "unused", batch_size=4, workers=0)
+    out = downstream.zero_shot(fake_bundle(), "fake", "unused", batch_size=4, workers=0, progress=False)
     assert out["acc1"] == pytest.approx(5 / 6)
     assert out["acc5"] == 1.0                                # only 4 classes, so top-5 covers all
     assert out["n_images"] == 6 and out["n_classes"] == 4 and out["n_templates"] == 2

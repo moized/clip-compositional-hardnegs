@@ -131,13 +131,17 @@ def class_vectors(bundle, classes: list, templates, amp: bool = False) -> torch.
 
 @torch.no_grad()
 def zero_shot(bundle, dataset: str, root: str, batch_size: int = 256, workers: int = 4,
-              amp: bool = False, limit: int | None = None) -> dict:
+              amp: bool = False, limit: int | None = None, progress: bool = True) -> dict:
     """Zero-shot top-1 / top-5 accuracy on cifar10, cifar100, imagenet1k or another CLIP_benchmark set."""
     amp = amp and str(bundle.device).startswith("cuda")
     bundle.model.eval()
     data, classes, templates = build_zero_shot_dataset(dataset, root, bundle.preprocess_eval, limit)
     classifier = class_vectors(bundle, classes, templates, amp)                 # [C, d]
     loader = DataLoader(data, batch_size=batch_size, shuffle=False, num_workers=workers)
+    if progress:
+        from tqdm import tqdm
+
+        loader = tqdm(loader, desc=f"Zero-shot {dataset}")
     top1 = top5 = total = 0
     for images, labels in loader:
         with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=amp):

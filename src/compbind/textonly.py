@@ -104,11 +104,3 @@ class GrammarScorer:
             logits = self.model(**enc).logits.float()
             prob[idx] = torch.softmax(logits, dim=-1)[:, 1].double().cpu().numpy()
         return {"prob": prob}
-
-
-def score_unique(scorer, texts: Sequence, key: str, progress: bool = False) -> np.ndarray:
-    """Score each distinct text once and return one value per input text."""
-    unique = list(dict.fromkeys(texts))
-    values = scorer.score(unique, progress=progress)[key]
-    lookup = dict(zip(unique, values))
-    return np.array([lookup[t] for t in texts], dtype=np.float64)

@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
-from . import CONDITIONS, aro, sugarcrepe
+from . import CONDITIONS, aro
 from .benchmarks import BENCHMARKS, CHANCE
 from .stats import accuracy_ci, paired_difference
 from .utils import load_json
@@ -377,9 +377,6 @@ def table_controls(results: Results, published: dict, n_boot: int = 2000) -> Tab
     add("Text only: GPT-2, mean log-probability", "measured", blind("gpt2"))
     add("Text only: GPT-2, total log-probability", "measured", blind("gpt2sum"))
     add("Text only: grammar model (CoLA)", "measured", blind("grammar"))
-    text_only = published["text_only_on_aro"]
-    for key, label in (("grammar", "Text only: grammar model"), ("vera", "Text only: Vera (plausibility)")):
-        add(label, f"published ({text_only['source']})", lambda b, k=key: text_only["models"][k].get(b))
     add(f"{REFERENCE_LABELS['clip']}, image replaced by another image", "measured",
         model("clip", "shuffled_image"))
     add(f"{REFERENCE_LABELS['negclip']}, image replaced by another image", "measured",
@@ -394,6 +391,86 @@ def table_controls(results: Results, published: dict, n_boot: int = 2000) -> Tab
         "A text-only model picks the caption a language model prefers and never sees the image.",
         "Shuffled image: the model scores the same captions against a different image, so only "
         "its text-side preference can produce a correct answer.",
+        "Published text-only numbers use per-item accuracy and are compared like for like in the "
+        "table 'reproduction_text_only'.",
+    ])
+
+
+def table_reproduction_text_only(results: Results, published: dict, n_boot: int = 2000) -> Table:
+    """Text-only models on ARO: published (SugarCrepe, Table 8) vs. measured, per-item accuracy."""
+    reference = published["text_only_on_aro"]
+    rows, gaps = [], []
+    for benchmark in ("vg_relation", "vg_attribution", "coco_order"):
+        entries = _blind_entry(results, benchmark)
+        if entries is None:
+            continue
+        key = "accuracy" if benchmark == "coco_order" else "micro_accuracy"
+
+        def per_item(scorer: str) -> str:
+            return pct(float(np.mean([e[scorer][key]["value"] for e in entries])), 2)
+
+        measured = 100 * float(np.mean([e["grammar"][key]["value"] for e in entries]))
+        if benchmark != "coco_order":
+            gaps.append(abs(measured - reference["models"]["grammar"][benchmark]))
+        rows.append({"Benchmark": f"{BENCHMARK_LABELS[benchmark]} (per-item accuracy)",
+                     "Grammar model, published": f"{reference['models']['grammar'][benchmark]:g}",
+                     "Grammar model, measured": per_item("grammar"),
+                     "Vera, published (not re-run)": f"{reference['models']['vera'][benchmark]:g}",
+                     "GPT-2 mean log-probability, measured": per_item("gpt2"),
+                     "Headline metric, grammar model / GPT-2, measured":
+                         f"{pct(_mean_headline(entries, 'grammar'))} / {pct(_mean_headline(entries, 'gpt2'))}"})
+    if not rows:
+        raise MissingInput("needs results/text_only")
+    return Table("reproduction_text_only", "Text-only models on ARO: published vs. measured", pd.DataFrame(rows), [
+        f"Published values: {reference['source']}. {reference['note']}",
+        "The measured values in the first columns are per-item accuracies. "
+        + ("On the two Visual Genome tasks they agree with the published grammar-model values to "
+           f"within {max(gaps):.2f} points, which indicates that the published values are per-item "
+           "accuracies as well. " if gaps and max(gaps) < 0.5 else
+           "They differ from the published grammar-model values on the Visual Genome tasks. ")
+        + "The last column gives the same measured models on ARO's own headline metric (macro "
+          "accuracy for the two Visual Genome tasks).",
+        "COCO-Order: the value published by the SugarCrepe authors differs from ours, as does their "
+        "CLIP accuracy on this task (37.14, against 46 in ARO), so their version of the task is "
+        "probably not identical to the released ARO code used here.",
+    ])
+
+
+def _mean_headline(entries: list, scorer: str) -> float:
+    return float(np.mean([e[scorer]["headline"] for e in entries]))
+
+
+def table_per_relation(results: Results, published: dict, n_boot: int = 2000) -> Table:
+    """VG-Relation broken down by relation (the most frequent ones)."""
+    clip, negclip = results.items("clip", "vg_relation"), results.items("negclip", "vg_relation")
+    if clip is None or negclip is None:
+        raise MissingInput("needs per-item VG-Relation results of clip and negclip")
+    blind = results.blind("vg_relation")
+    tables = aligned([clip, negclip] + ([blind] if blind is not None else []))
+    frame = pd.DataFrame({"relation": tables[0]["group"].values, "CLIP": tables[0]["correct"].values,
+                          "NegCLIP": tables[1]["correct"].values})
+    if blind is not None:
+        frame["Text only: GPT-2"] = tables[2]["gpt2_correct"].values
+    models = [c for c in frame.columns if c != "relation"]
+    grouped = frame.groupby("relation")[models].mean()
+    grouped["items"] = frame.groupby("relation").size()
+    grouped = grouped.sort_values("items", ascending=False)
+    rows = []
+    for relation, row in grouped.head(12).iterrows():
+        rows.append({"Relation": relation, "Items": int(row["items"]),
+                     "Share of all items (%)": pct(row["items"] / len(frame)),
+                     "In ARO's score": "no" if relation in aro.SYMMETRIC_RELATIONS else "yes",
+                     **{model: pct(row[model]) for model in models}})
+    counted = grouped[~grouped.index.isin(aro.SYMMETRIC_RELATIONS)]
+    rows.append({"Relation": f"Mean over the {len(counted)} relations in ARO's score (macro accuracy)",
+                 "Items": int(counted["items"].sum()), "Share of all items (%)": pct(counted["items"].sum() / len(frame)),
+                 "In ARO's score": "", **{model: pct(counted[model].mean()) for model in models}})
+    rows.append({"Relation": "All items (per-item accuracy)", "Items": len(frame), "Share of all items (%)": "100.0",
+                 "In ARO's score": "", **{model: pct(frame[model].mean()) for model in models}})
+    return Table("per_relation", "VG-Relation by relation: the twelve most frequent relations", pd.DataFrame(rows), [
+        "Accuracy in %; chance is 50%. NegCLIP is the released checkpoint with QuickGELU.",
+        "ARO's score gives every relation the same weight, whatever its number of items; the last two "
+        "rows show how much this choice matters.",
     ])
 
 
@@ -584,7 +661,8 @@ def table_condition_differences(results: Results, published: dict, n_boot: int =
             table_a, table_b = aligned([first[0].assign(correct=first[1]), second[0].assign(correct=second[1])])
             diff = headline_difference(benchmark, table_a, table_a["correct"].values,
                                        table_b["correct"].values, n_boot)
-            row[BENCHMARK_LABELS[benchmark]] = f"{signed_ci(diff)}, p={diff['p_value']:.3f}"
+            p_value = "p<0.001" if diff["p_value"] < 0.001 else f"p={diff['p_value']:.3f}"
+            row[BENCHMARK_LABELS[benchmark]] = f"{signed_ci(diff)}, {p_value}"
         rows.append(row)
     if not rows:
         raise MissingInput("needs at least two fine-tuned conditions")
@@ -727,7 +805,8 @@ def table_validation(results: Results, published: dict, n_boot: int = 2000) -> T
     ])
 
 
-ALL_TABLES = (table_reproduction_aro, table_reproduction_sugarcrepe, table_controls,
+ALL_TABLES = (table_reproduction_aro, table_reproduction_sugarcrepe, table_reproduction_text_only,
+              table_controls, table_per_relation,
               table_slices_text_only, table_slices_seen, table_training_negatives,
               table_conditions, table_condition_differences, table_condition_slices,
               table_cost, table_validation)

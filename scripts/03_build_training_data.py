@@ -44,7 +44,8 @@ from compbind.coco import CocoImages, folder_of  # noqa: E402
 from compbind.negatives import generate_candidates  # noqa: E402
 from compbind.paths import DataPaths, add_common_args, pick_device  # noqa: E402
 from compbind.textonly import GrammarScorer, Gpt2Scorer  # noqa: E402
-from compbind.utils import Timer, ensure_dir, run_record, save_json, seed_everything  # noqa: E402
+from compbind.utils import (Timer, add_config_option, ensure_dir, run_record, save_json,  # noqa: E402
+                            seed_everything)
 
 
 def grammar_blind_accuracy(grammar: GrammarScorer, captions: list, negatives: list) -> float:
@@ -122,6 +123,7 @@ def main() -> None:
                         help="Do not fetch missing training images (they must exist already).")
     parser.add_argument("--download-workers", type=int, default=32)
     parser.add_argument("--force", action="store_true", help="Rebuild even if pairs.csv.gz exists.")
+    add_config_option(parser, "training_data")
     args = parser.parse_args()
 
     seed_everything(args.seed)

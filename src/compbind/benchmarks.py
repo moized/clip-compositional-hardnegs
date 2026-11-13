@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from . import aro, sugarcrepe
-from .coco import CocoImages, coco_id, load_karpathy
+from .coco import CocoImages, load_karpathy
 from .paths import DataPaths
 from .items import Item
 from .stats import accuracy_ci, macro_accuracy_ci
@@ -39,7 +39,7 @@ def _coco_order_items(paths: DataPaths, images: CocoImages, seed: int) -> list:
 def get_items(name: str, paths: DataPaths, images: CocoImages, seed: int = 0,
               limit: Optional[int] = None) -> list:
     """Test items of one benchmark. `seed` only matters for coco_order.
-    `limit` keeps a fixed random subset (for quick tests only)."""
+    `limit` keeps a fixed random subset of about that many items (for quick tests only)."""
     if name == "vg_relation":
         items = aro.load_vg_relation(paths.aro)
     elif name == "vg_attribution":
@@ -51,7 +51,21 @@ def get_items(name: str, paths: DataPaths, images: CocoImages, seed: int = 0,
     else:
         raise ValueError(f"Unknown benchmark {name!r}; choose from {BENCHMARKS}")
     if limit is not None and limit < len(items):
-        items = random.Random(0).sample(items, limit)
+        if name == "vg_attribution":
+            # Take whole attribute pairs that count toward the score (at least 25 cases);
+            # a plain random sample would leave no pair with 25 cases.
+            by_group: dict = {}
+            for item in items:
+                by_group.setdefault(item.group, []).append(item)
+            groups = sorted(g for g, members in by_group.items() if len(members) >= aro.MIN_ATTRIBUTE_COUNT)
+            random.Random(0).shuffle(groups)
+            items = []
+            for group in groups:
+                if len(items) >= limit:
+                    break
+                items += by_group[group]
+        else:
+            items = random.Random(0).sample(items, limit)
     return items
 
 

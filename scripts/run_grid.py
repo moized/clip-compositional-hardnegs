@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "src"))
 
 from compbind import CONDITIONS  # noqa: E402
 from compbind.benchmarks import BENCHMARKS  # noqa: E402
-from compbind.utils import ensure_dir, load_json  # noqa: E402
+from compbind.utils import add_config_option, ensure_dir, load_json  # noqa: E402
 
 print_lock = threading.Lock()
 
@@ -77,6 +77,10 @@ def run_one(args, condition: str, seed: int, gpu) -> str:
     if args.coco_roots:
         common += ["--coco-roots"] + list(args.coco_roots)
     steps = []
+    if have_training_record and not os.path.isfile(model):
+        say(f"{name}: the checkpoint was deleted after an earlier evaluation, so the model is trained again "
+            "for the missing evaluations. GPU training is not exactly repeatable; use --keep-checkpoints "
+            "if you plan to add evaluations later.")
     if not os.path.isfile(model) or not have_training_record:
         train = [sys.executable, os.path.join(HERE, "04_train.py"), *common, "--negatives", condition,
                  "--seed", str(seed), "--epochs", str(args.epochs), "--lr", str(args.lr),
@@ -112,7 +116,10 @@ def run_one(args, condition: str, seed: int, gpu) -> str:
             log.flush()
             code = subprocess.call(command, env=env, stdout=log, stderr=subprocess.STDOUT)
             if code != 0:
-                say(f"{name}: {label} FAILED (exit code {code}); see {log_path}")
+                log.flush()
+                with open(log_path, "r", encoding="utf-8", errors="replace") as written:
+                    tail = "".join(written.readlines()[-25:])
+                say(f"{name}: {label} FAILED (exit code {code}). Last lines of {log_path}:\n{tail}")
                 return "FAILED"
             if label == "train":   # keep the small training records with the results
                 for filename in ("train_summary.json", "train_log.jsonl"):
@@ -149,6 +156,7 @@ def main() -> None:
                         help="Keep model.pt after evaluation (about 600 MB per run).")
     parser.add_argument("--runs-dir", default="runs")
     parser.add_argument("--results-dir", default="results")
+    add_config_option(parser, "grid")
     args = parser.parse_args()
 
     if args.gpus is None:

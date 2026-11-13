@@ -88,7 +88,8 @@ def test_every_table_builds_or_reports_what_is_missing(results_dir):
         assert len(table.frame) > 0 and table.to_markdown().startswith("### ")
         built[table.name] = table
     # everything except the training-data table has its inputs in this fixture
-    assert set(built) == {"reproduction_aro", "reproduction_sugarcrepe", "controls", "slices_text_only",
+    assert set(built) == {"reproduction_aro", "reproduction_sugarcrepe", "reproduction_text_only", "controls",
+                          "per_relation", "slices_text_only",
                           "slices_seen_images", "conditions_compositional", "conditions_differences",
                           "conditions_slices", "cost", "validation"}
     conditions = built["conditions_compositional"].frame

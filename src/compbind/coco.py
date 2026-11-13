@@ -67,6 +67,9 @@ def discover_image_dirs(roots: Sequence, max_depth: int = 5) -> list:
             for entry in entries:
                 if entry.name in IMAGE_FOLDERS:
                     found.append(entry.path)
+                    nested = os.path.join(entry.path, entry.name)   # e.g. train2017/train2017/*.jpg
+                    if os.path.isdir(nested):
+                        found.append(nested)
                 elif depth < max_depth and not entry.name.startswith("."):
                     stack.append((entry.path, depth + 1))
     return sorted(set(found))

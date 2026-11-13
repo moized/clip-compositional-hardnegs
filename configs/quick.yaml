@@ -1,0 +1,22 @@
+# A rehearsal of the whole pipeline on a small sample (minutes instead of hours).
+# Its numbers mean nothing; write them to a separate results folder.
+
+training_data:
+  seed: 0
+  max_images: 3000
+  val_pairs: 200
+  bin_width: 0.02
+  max_abs_gap: 1.0
+  audit_size: 20
+
+grid:
+  conditions: [none, swap_fluent]
+  seeds: [0]
+  epochs: 1
+  max_steps: 20
+  batch_size: 64
+  lr: 1.0e-6
+  warmup: 5
+  limit: 500              # evaluate on 500 items per benchmark
+  order_seeds: [0]
+  zero_shot: [cifar10]

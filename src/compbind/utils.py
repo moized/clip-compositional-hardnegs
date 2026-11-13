@@ -115,6 +115,33 @@ def run_record(args: Any = None, **extra: Any) -> dict:
     return record
 
 
+def add_config_option(parser, section: str) -> None:
+    """Add `--config FILE` to a parser and use that file's `section` as default values.
+
+    The file is YAML; the keys of the section are the option names with "_" instead
+    of "-". Options given on the command line still win. An unknown key is an error,
+    so a typing mistake in the file cannot be ignored silently.
+    """
+    import argparse
+
+    parser.add_argument("--config", default=None,
+                        help=f"YAML file whose '{section}' section sets default values (see configs/).")
+    probe = argparse.ArgumentParser(add_help=False)
+    probe.add_argument("--config", default=None)
+    path = probe.parse_known_args()[0].config
+    if not path:
+        return
+    import yaml
+
+    with open(path, "r", encoding="utf-8") as f:
+        values = (yaml.safe_load(f) or {}).get(section) or {}
+    known = {action.dest for action in parser._actions}
+    unknown = sorted(set(values) - known)
+    if unknown:
+        parser.error(f"{path}: unknown option(s) in section '{section}': {', '.join(unknown)}")
+    parser.set_defaults(**values)
+
+
 class Timer:
     """Context manager that measures wall-clock seconds."""
 

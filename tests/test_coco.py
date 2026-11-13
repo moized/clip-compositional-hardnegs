@@ -31,6 +31,11 @@ def test_images_are_found_in_2014_and_2017_folders(tmp_path):
         images.path(7)
 
 
+def test_nested_folder_with_the_same_name_is_searched(tmp_path):
+    touch(tmp_path / "val2017" / "val2017" / "000000000139.jpg")
+    assert CocoImages([str(tmp_path)]).find(139) is not None
+
+
 def test_discover_ignores_missing_roots(tmp_path):
     assert discover_image_dirs([str(tmp_path / "missing"), ""]) == []
 

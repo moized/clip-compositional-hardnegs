@@ -31,7 +31,7 @@ from compbind import overlap  # noqa: E402
 from compbind.benchmarks import BENCHMARKS, get_items, items_fingerprint, summarize  # noqa: E402
 from compbind.coco import CocoImages  # noqa: E402
 from compbind.paths import DataPaths, add_common_args, pick_device  # noqa: E402
-from compbind.textonly import GrammarScorer, Gpt2Scorer, score_unique  # noqa: E402
+from compbind.textonly import GrammarScorer, Gpt2Scorer  # noqa: E402
 from compbind.utils import ensure_dir, run_record, save_json, seed_everything  # noqa: E402
 
 

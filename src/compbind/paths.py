@@ -58,10 +58,6 @@ class DataPaths:
         return os.path.join(self.root, "cache")
 
 
-def repo_root() -> str:
-    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
 def add_common_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Arguments shared by all scripts."""
     parser.add_argument("--data-dir", default=os.environ.get("COMPBIND_DATA", "data"),

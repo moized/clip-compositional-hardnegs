@@ -27,7 +27,8 @@ import zipfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
 from compbind import aro, sugarcrepe  # noqa: E402
-from compbind.coco import CocoImages, download_file, ids_with_folder, load_karpathy  # noqa: E402
+from compbind.benchmarks import needed_coco_ids  # noqa: E402
+from compbind.coco import CocoImages, download_file, load_karpathy  # noqa: E402
 from compbind.paths import (ARO_COMMIT, ARO_REPO, SUGARCREPE_COMMIT, SUGARCREPE_REPO,  # noqa: E402
                             VG_IMAGE_DATA_URL, DataPaths, add_common_args)
 from compbind.utils import ensure_dir, run_record, save_json  # noqa: E402
@@ -120,9 +121,7 @@ def main() -> None:
     if "coco_eval" in args.only:
         images = CocoImages(args.coco_roots, download_dir=paths.coco_download)
         print("COCO image folders found:", images.dirs or "none (images will be downloaded)")
-        wanted = dict(sugarcrepe.image_ids(paths.sugarcrepe))
-        test = load_karpathy(paths.karpathy, "test")
-        wanted.update(ids_with_folder(a["image"] for a in test))
+        wanted = needed_coco_ids(paths)
         stats = images.ensure(wanted, workers=args.download_workers)
         print(f"COCO evaluation images: {stats['present']} already present, "
               f"{stats['downloaded']} downloaded")

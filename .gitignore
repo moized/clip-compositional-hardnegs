@@ -20,6 +20,8 @@ checkpoints/
 # Experiment tracking / caches
 wandb/
 runs/
+results_quick/
+scratch/
 .cache/
 outputs/tmp/
 

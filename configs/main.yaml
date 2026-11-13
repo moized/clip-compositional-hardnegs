@@ -1,0 +1,22 @@
+# Settings of the main experiment. Used with
+#   python scripts/03_build_training_data.py --config configs/main.yaml
+#   python scripts/run_grid.py               --config configs/main.yaml
+# A value given on the command line overrides the value in this file.
+# Keys are the scripts' option names with "_" instead of "-".
+
+training_data:            # scripts/03_build_training_data.py
+  seed: 0
+  val_pairs: 2000         # held-out pairs for validation (never used for training)
+  bin_width: 0.02         # width of the fluency-gap bins (nats per token)
+  max_abs_gap: 1.0        # pairs with a larger fluency gap are not selected
+  audit_size: 100         # pairs per negative set exported for the manual audit
+
+grid:                     # scripts/run_grid.py
+  conditions: [none, random, swap, swap_nosym, swap_fluent]
+  seeds: [0, 1, 2]
+  epochs: 5               # as in the released NegCLIP command
+  batch_size: 256         # as in the released NegCLIP command
+  lr: 1.0e-6              # as in the released NegCLIP command
+  warmup: 50              # as in the released NegCLIP command
+  order_seeds: [0]        # COCO-Order shuffle seed used for the fine-tuned models
+  zero_shot: [cifar10, cifar100]

@@ -1,0 +1,20 @@
+# Exact versions the code was developed and tested with (Python 3.13, Linux).
+# For a GPU, install the matching PyTorch build first (https://pytorch.org/get-started/locally/),
+# then:  pip install -r requirements.txt
+# On Kaggle use requirements-kaggle.txt instead; it keeps Kaggle's own PyTorch.
+torch==2.15.0
+torchvision==0.29.2
+open_clip_torch==4.2.2
+transformers==5.22.2
+spacy==3.8.18
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+nltk==3.10.4
+numpy==2.5.4
+pandas==3.1.1
+pillow==13.0.0
+tqdm==4.70.1
+clip-benchmark==1.6.2
+gdown==6.5.1
+PyYAML==6.0.3
+matplotlib==3.11.2
+pytest==9.2.0

@@ -331,7 +331,7 @@ def figure_fluency_gap(results: Results, published: dict):
         raise MissingInput("results/training_data/gap_histograms.json and stats.json")
     edges = np.asarray(histograms["edges"])
     centres = (edges[:-1] + edges[1:]) / 2
-    fig, ax = plt.subplots(figsize=(7.4, 3.3))
+    fig, ax = plt.subplots(figsize=(7.4, 3.9))
     series = (("all_candidates", "all possible swaps", MUTED, None),
               ("neg_swap", "swap (NegCLIP-style)", ORANGE, "neg_swap"),
               ("neg_fluent", "swap_fluent (fluency-matched)", BLUE, "neg_fluent"))
@@ -348,17 +348,19 @@ def figure_fluency_gap(results: Results, published: dict):
         handles.append(_legend_handle(f"{label}: GPT-2 alone picks the true caption {100 * accuracy:.0f}% of the time",
                                       color, "", line=True))
     ax.axvline(0, color=AXIS, linewidth=1.0, zorder=1)
-    top = ax.get_ylim()[1]
-    ax.text(0.04, top * 0.97, "negative reads worse\nthan the caption →", ha="left", va="top", fontsize=7.5, color=MUTED)
-    ax.text(-0.04, top * 0.97, "← negative reads\nbetter", ha="right", va="top", fontsize=7.5, color=MUTED)
+    top = ax.get_ylim()[1] * 1.16                      # head-room above the curves for the two notes
+    ax.text(0.05, top * 0.985, "negative reads worse than the caption →", ha="left", va="top",
+            fontsize=7.5, color=MUTED)
+    ax.text(-0.05, top * 0.985, "← negative reads better", ha="right", va="top", fontsize=7.5, color=MUTED)
     ax.set_xlim(-1.5, 3.0)
     ax.set_ylim(0, top)
     ax.set_xlabel("fluency gap: GPT-2 mean log-probability of the caption minus that of its negative (nats per token)")
     ax.set_ylabel("share of pairs (%)")
     _style(ax, "y")
-    ax.legend(handles=handles, loc="upper right", fontsize=8, handlelength=1.6)
+    fig.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.075, 0.915), fontsize=8, handlelength=1.6,
+               borderaxespad=0)
     _title(fig, "Rule-based swaps can be told from the true caption by fluency alone")
-    fig.subplots_adjust(left=0.085, right=0.985, top=0.88, bottom=0.15)
+    fig.subplots_adjust(left=0.085, right=0.985, top=0.70, bottom=0.13)
     return fig
 
 

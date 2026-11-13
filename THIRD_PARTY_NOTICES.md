@@ -31,6 +31,13 @@ https://github.com/LAION-AI/CLIP_benchmark, MIT License.
 Used as a library (datasets, class names, prompt templates); the zero-shot procedure in
 `src/compbind/downstream.py` mirrors its `zeroshot_classification.py`.
 
+**Consulted, no code used**
+- https://github.com/tripletclip/TripletCLIP (TripletCLIP, NeurIPS 2024): its NegCLIP and NegCLIP++
+  baselines are the precedent for comparing rule-based and fluent negatives.
+- https://github.com/saic-fi/concept_centric_clip (C2LIP, CVPR 2026, MIT License, Copyright (c) Samsung
+  AI Center - Cambridge, UK): the paper evaluates every model with CLIP_benchmark; the same tool's
+  datasets, class names and prompts are used here for the zero-shot measurements.
+
 The MIT License of the projects above:
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this

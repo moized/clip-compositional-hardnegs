@@ -249,9 +249,9 @@ def table_reproduction_aro(results: Results, published: dict, n_boot: int = 2000
             other = published["aro_remeasured_by_sugarcrepe"]
             if entry is not None:                             # a second published value for CLIP
                 reference = other["models"]["clip"]["coco_order"]
-                rows.append({**rows[-len([n for n in ("clip", "negclip", "negclip_gelu")
-                                          if results.entry(n, benchmark) is not None])],
-                             "Published (%)": f"{reference:g}", "Source": other["source"],
+                clip_row = next(r for r in rows if r["Model"] == REFERENCE_LABELS["clip"]
+                                and r["Benchmark"].startswith(BENCHMARK_LABELS[benchmark]))
+                rows.append({**clip_row, "Published (%)": f"{reference:g}", "Source": other["source"],
                              "Measured − published": f"{100 * entry['headline'] - reference:+.1f}"})
             continue
         for name in ("clip", "negclip", "negclip_gelu"):      # the per-item ("micro") average

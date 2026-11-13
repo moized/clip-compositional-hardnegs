@@ -44,8 +44,8 @@ from compbind.coco import CocoImages, folder_of  # noqa: E402
 from compbind.negatives import generate_candidates  # noqa: E402
 from compbind.paths import DataPaths, add_common_args, pick_device  # noqa: E402
 from compbind.textonly import GrammarScorer, Gpt2Scorer  # noqa: E402
-from compbind.utils import (Timer, add_config_option, ensure_dir, run_record, save_json,  # noqa: E402
-                            seed_everything)
+from compbind.utils import (Timer, add_config_option, ensure_dir, load_json, run_record,  # noqa: E402
+                            save_json, seed_everything)
 
 
 def grammar_blind_accuracy(grammar: GrammarScorer, captions: list, negatives: list) -> float:
@@ -58,6 +58,8 @@ def grammar_blind_accuracy(grammar: GrammarScorer, captions: list, negatives: li
 
 
 GAP_EDGES = np.round(np.arange(-2.0, 4.0001, 0.1), 2)   # histogram bins for the fluency gap
+# Options that decide which pairs are built. An existing table is reused only if they are unchanged.
+SETTINGS = ("seed", "max_images", "max_train_pairs", "val_pairs", "bin_width", "max_abs_gap")
 
 
 def gap_histogram(gap) -> dict:
@@ -127,25 +129,22 @@ def main() -> None:
     args = parser.parse_args()
 
     seed_everything(args.seed)
-    device = pick_device(args.device)
     paths = DataPaths(args.data_dir)
     out_dir = ensure_dir(paths.training)
     pairs_path = os.path.join(out_dir, "pairs.csv.gz")
+    settings = {name: getattr(args, name) for name in SETTINGS}
+    stats_path = os.path.join(out_dir, "stats.json")
     if os.path.isfile(pairs_path) and not args.force:
-        print(f"{pairs_path} already exists (use --force to rebuild it).")
-        finish(args, paths, pd.read_csv(pairs_path))
-        return
-    gpt2 = Gpt2Scorer(device=device, batch_size=args.batch_size)
-    stats: dict = {"run": run_record(args, device=device)}
+        previous = load_json(stats_path).get("settings") if os.path.isfile(stats_path) else None
+        if previous == settings:
+            print(f"{pairs_path} already exists with the same settings (use --force to rebuild it).")
+            finish(args, paths, pd.read_csv(pairs_path))
+            return
+        print(f"{pairs_path} was built with other settings ({previous}); rebuilding with {settings}.")
+    stats: dict = {"settings": settings}
 
-    if args.check_against_negclip:
-        check = check_against_negclip(paths, gpt2, args.check_sample, args.seed)
-        save_json(check, os.path.join(out_dir, "negclip_check.json"))
-        print(f"Our rules reproduce {100 * check['reproduced_share']:.1f}% of the authors' negatives; "
-              f"GPT-2 alone separates them from the true caption "
-              f"{100 * check['gpt2_blind_accuracy_on_released_negatives']:.1f}% of the time.")
-
-    # 1-3: pool, candidate swaps, fluency gaps
+    # 1-2: pool and candidate swaps. spaCy may start extra processes here, so this step
+    # comes before anything touches the GPU (a process that holds a GPU must not be forked).
     pool, stats["pool"] = traindata.leak_free_pool(paths, args.max_images, args.seed)
     print(f"Pool: {stats['pool']['pool_images']} images, {stats['pool']['pool_captions']} captions "
           f"({stats['pool']['images_removed_because_in_aro_test']} images removed: in ARO test sets)")
@@ -154,6 +153,18 @@ def main() -> None:
     stats["candidates"] = {"n": int(len(candidates)), "by_kind": traindata.kind_counts(candidates),
                            "symmetric_share": float(candidates["symmetric"].mean()),
                            "seconds": round(timer.seconds, 1)}
+
+    device = pick_device(args.device)
+    stats["run"] = run_record(args, device=device)
+    gpt2 = Gpt2Scorer(device=device, batch_size=args.batch_size)
+    if args.check_against_negclip:
+        check = check_against_negclip(paths, gpt2, args.check_sample, args.seed)
+        save_json(check, os.path.join(out_dir, "negclip_check.json"))
+        print(f"Our rules reproduce {100 * check['reproduced_share']:.1f}% of the authors' negatives; "
+              f"GPT-2 alone separates them from the true caption "
+              f"{100 * check['gpt2_blind_accuracy_on_released_negatives']:.1f}% of the time.")
+
+    # 3: fluency gaps
     with Timer() as timer:
         traindata.add_fluency_gap(pool, candidates, gpt2)
     stats["candidates"]["gpt2_seconds"] = round(timer.seconds, 1)
@@ -229,7 +240,7 @@ def main() -> None:
     audit[["audit_id", "caption", "negative"]].assign(label="").to_csv(
         os.path.join(out_dir, "audit_sample.csv"), index=False)
 
-    save_json(stats, os.path.join(out_dir, "stats.json"))
+    save_json(stats, stats_path)
     print("Wrote", pairs_path, "and stats.json")
     finish(args, paths, pairs)
 

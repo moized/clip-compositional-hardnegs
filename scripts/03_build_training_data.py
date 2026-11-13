@@ -257,11 +257,17 @@ def finish(args, paths: DataPaths, pairs: pd.DataFrame) -> None:
         target = ensure_dir(os.path.join(args.results_dir, "training_data"))
         for name in ("stats.json", "split_manifest.json", "gap_histograms.json", "negclip_check.json",
                      "audit_sample.csv", "audit_key.csv"):
-            source = os.path.join(out_dir, name)
-            # never overwrite an audit file that may already contain hand-made labels
-            if os.path.isfile(source) and not (name.startswith("audit")
-                                               and os.path.isfile(os.path.join(target, name))):
-                shutil.copy2(source, os.path.join(target, name))
+            source, copy = os.path.join(out_dir, name), os.path.join(target, name)
+            if not os.path.isfile(source):
+                continue
+            if name == "audit_key.csv" and os.path.isfile(copy):
+                with open(source, "rb") as new, open(copy, "rb") as old:
+                    if new.read() != old.read():
+                        print(f"Kept the audit files already in {target}; they belong to an earlier build of "
+                              "the training data. Delete them and run this script again to audit the new pairs.")
+            # never overwrite an audit file: it may already contain hand-made labels
+            if not (name.startswith("audit") and os.path.isfile(copy)):
+                shutil.copy2(source, copy)
         print("Copied the small files to", target)
 
 

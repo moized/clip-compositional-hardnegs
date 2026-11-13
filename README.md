@@ -12,8 +12,9 @@ vision-language models behave like bags-of-words, and what to do about it?*, ICL
 ([paper](https://arxiv.org/abs/2210.01936),
 [code](https://github.com/mertyg/vision-language-models-are-bows)).
 
-**Status.** Code complete and tested. The experiments are run with the Kaggle notebook;
-results are added to `results/` as they are produced (see `results/tables/README.md`).
+**Status.** Code complete and tested (unit tests, a quick end-to-end test, and a rehearsal
+of the whole notebook on a small sample). The experiments are run with the Kaggle
+notebook; results are added to `results/` as they are produced (`results/tables/README.md`).
 
 ## Research question
 
@@ -115,8 +116,11 @@ link and the place to put the file by hand. Licences: [THIRD_PARTY_NOTICES.md](T
 
 ## Reproducing the results
 
-The easiest way is `notebooks/kaggle_run.ipynb` (GPU T4, Internet on). The same steps
-as commands, run from the repository root:
+The easiest way is `notebooks/kaggle_run.ipynb`: in Kaggle choose *Create → New Notebook →
+File → Import Notebook* and upload the file, switch on a GPU (T4) and Internet, and run
+it first with `QUICK = True` (a rehearsal on a small sample), then with `QUICK = False`.
+The notebook clones this repository and calls the scripts below. The same steps as
+commands, run from the repository root:
 
 ```bash
 python scripts/00_download_data.py

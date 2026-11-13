@@ -19,6 +19,7 @@ Outputs in <data-dir>/training/:
   audit_sample.csv      random (caption, negative) pairs to label by hand; which negative
                         set a row comes from is hidden in audit_key.csv (see docs/AUDIT.md)
   negclip_check.json    with --check-against-negclip: agreement with the authors' negatives
+  images_small/         reduced copies of the training images (faster to read each epoch)
 The small files (everything except pairs.csv.gz) are also copied to
 <results-dir>/training_data/ so that they can be committed.
 """
@@ -40,7 +41,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from compbind import refine, traindata  # noqa: E402
-from compbind.coco import CocoImages, folder_of  # noqa: E402
+from compbind.coco import CocoImages, folder_of, make_small_copies  # noqa: E402
 from compbind.negatives import generate_candidates  # noqa: E402
 from compbind.paths import DataPaths, add_common_args, pick_device  # noqa: E402
 from compbind.textonly import GrammarScorer, Gpt2Scorer  # noqa: E402
@@ -124,6 +125,8 @@ def main() -> None:
     parser.add_argument("--no-image-download", action="store_true",
                         help="Do not fetch missing training images (they must exist already).")
     parser.add_argument("--download-workers", type=int, default=32)
+    parser.add_argument("--small-side", type=int, default=256,
+                        help="Shorter side of the reduced image copies used for training (0: none).")
     parser.add_argument("--force", action="store_true", help="Rebuild even if pairs.csv.gz exists.")
     add_config_option(parser, "training_data")
     args = parser.parse_args()
@@ -253,6 +256,11 @@ def finish(args, paths: DataPaths, pairs: pd.DataFrame) -> None:
         wanted = {int(i): folder_of(f) for i, f in zip(pairs["image_id"], pairs["image_file"])}
         fetched = images.ensure(wanted, workers=args.download_workers)
         print(f"Training images: {fetched['present']} present, {fetched['downloaded']} downloaded")
+        if args.small_side:
+            copies = make_small_copies({i: images.path(i) for i in wanted}, paths.train_images_small,
+                                       shorter_side=args.small_side)
+            print(f"Reduced copies for training ({args.small_side} px): {copies['present']} present, "
+                  f"{copies['made']} made")
     if args.results_dir:
         target = ensure_dir(os.path.join(args.results_dir, "training_data"))
         for name in ("stats.json", "split_manifest.json", "gap_histograms.json", "negclip_check.json",

@@ -166,6 +166,52 @@ class CocoImages:
         return stats
 
 
+def small_copy_path(folder: str, image_id: int) -> str:
+    return os.path.join(folder, f"{int(image_id):012d}.jpg")
+
+
+def _make_small_copy(source: str, target: str, shorter_side: int) -> None:
+    from PIL import Image
+
+    with Image.open(source) as image:
+        image = image.convert("RGB")
+        scale = shorter_side / min(image.size)
+        if scale < 1:
+            image = image.resize((round(image.width * scale), round(image.height * scale)), Image.BICUBIC)
+        tmp = f"{target}.part{threading.get_ident()}"
+        image.save(tmp, format="JPEG", quality=95, subsampling=0)
+    os.replace(tmp, target)
+
+
+def make_small_copies(sources: dict, folder: str, shorter_side: int = 256, workers: int | None = None,
+                      progress: bool = True) -> dict:
+    """Write a reduced JPEG copy (shorter side `shorter_side` pixels) of every image.
+
+    `sources` maps image id -> path of the original. Training reads every image once per
+    epoch, and decoding full-size JPEGs is what limits the speed on a machine with few
+    CPU cores. The random crop used in training is then taken from the reduced copy; the
+    model's input is 224 pixels, so little is lost. Existing copies are kept.
+    Returns {"present": n, "made": n}.
+    """
+    ensure_dir(folder)
+    jobs = [(path, small_copy_path(folder, image_id)) for image_id, path in sources.items()]
+    jobs = [(source, target) for source, target in jobs if not os.path.isfile(target)]
+    stats = {"present": len(sources) - len(jobs), "made": 0}
+    if not jobs:
+        return stats
+    with ThreadPoolExecutor(max_workers=workers or os.cpu_count() or 4) as pool:   # Pillow releases the GIL
+        futures = [pool.submit(_make_small_copy, source, target, shorter_side) for source, target in jobs]
+        iterator = as_completed(futures)
+        if progress:
+            from tqdm import tqdm
+
+            iterator = tqdm(iterator, total=len(futures), desc="Making reduced image copies")
+        for future in iterator:
+            future.result()
+            stats["made"] += 1
+    return stats
+
+
 def download_file(url: str, target: str, retries: int = 4) -> str:
     """Download `url` to `target` unless it already exists."""
     if os.path.isfile(target) and os.path.getsize(target) > 0:

@@ -16,7 +16,9 @@ started again. With --gpus 0 1 the runs are spread over two GPUs, one run per GP
 a time; every run still uses a single GPU, as in the NegCLIP recipe.
 
 Seeds are the outer loop: all conditions finish seed 0 before seed 1 starts, so a
-grid that is stopped early still has complete seeds.
+grid that is stopped early still has complete seeds. With --time-budget-hours the
+grid stops starting new runs when the next one would not finish in time, so that the
+tables can still be built from the finished runs before a session limit is reached.
 """
 from __future__ import annotations
 
@@ -58,16 +60,22 @@ def downstream_done(results_dir: str, name: str, need_retrieval: bool, datasets:
         not need_retrieval or "coco_retrieval" in saved)
 
 
+def missing_parts(args, name: str) -> tuple:
+    """(evaluation missing, downstream missing, training record present) for one run."""
+    need_eval = not evaluation_done(args.results_dir, name)
+    need_downstream = not args.skip_downstream and not downstream_done(
+        args.results_dir, name, not args.skip_retrieval, args.zero_shot)
+    have_training_record = os.path.isfile(os.path.join(args.results_dir, name, "train_summary.json"))
+    return need_eval, need_downstream, have_training_record
+
+
 def run_one(args, condition: str, seed: int, gpu) -> str:
     """Train and evaluate one run. Returns "done", "skipped" or "FAILED"."""
     name = f"{condition}_seed{seed}"
     run_dir = ensure_dir(os.path.join(args.runs_dir, name))
     result_dir = ensure_dir(os.path.join(args.results_dir, name))
     model = os.path.join(run_dir, "model.pt")
-    need_eval = not evaluation_done(args.results_dir, name)
-    need_downstream = not args.skip_downstream and not downstream_done(
-        args.results_dir, name, not args.skip_retrieval, args.zero_shot)
-    have_training_record = os.path.isfile(os.path.join(result_dir, "train_summary.json"))
+    need_eval, need_downstream, have_training_record = missing_parts(args, name)
     if not need_eval and not need_downstream and have_training_record:
         return "skipped"
 
@@ -154,6 +162,12 @@ def main() -> None:
     parser.add_argument("--skip-retrieval", action="store_true")
     parser.add_argument("--keep-checkpoints", action="store_true",
                         help="Keep model.pt after evaluation (about 600 MB per run).")
+    parser.add_argument("--time-budget-hours", type=float, default=None,
+                        help="Do not start a run that is not expected to finish within this many hours\n"
+                             "after the grid started. Protects against the platform's session limit:\n"
+                             "runs that are not started are simply missing from the results.")
+    parser.add_argument("--expected-run-minutes", type=float, default=45,
+                        help="First guess of how long one run takes (used until a run has finished).")
     parser.add_argument("--runs-dir", default="runs")
     parser.add_argument("--results-dir", default="results")
     add_config_option(parser, "grid")
@@ -178,6 +192,7 @@ def main() -> None:
     say(f"{total} runs on {'GPU ' + ', '.join(map(str, args.gpus)) if args.gpus else 'CPU'}; "
         f"{args.workers} image-loading processes per run")
     outcome: dict = {}
+    grid_start, durations = time.time(), []
 
     def worker(gpu) -> None:
         while True:
@@ -186,12 +201,23 @@ def main() -> None:
             except queue.Empty:
                 return
             start = time.time()
+            need_eval, need_downstream, have_record = missing_parts(args, f"{condition}_seed{seed}")
+            pending = need_eval or need_downstream or not have_record
+            if pending and args.time_budget_hours is not None:
+                expected = max(durations) if durations else 60 * args.expected_run_minutes
+                if start - grid_start + expected > 3600 * args.time_budget_hours:
+                    outcome[(condition, seed)] = "not started"
+                    say(f"{condition}_seed{seed}: not started, it would not finish within the time budget "
+                        f"of {args.time_budget_hours:g} h")
+                    continue
             try:
                 status = run_one(args, condition, seed, gpu)
             except Exception as error:  # keep the other runs going
                 status = "FAILED"
                 say(f"{condition}_seed{seed}: {type(error).__name__}: {error}")
             outcome[(condition, seed)] = status
+            if status == "done":
+                durations.append(time.time() - start)
             say(f"{condition}_seed{seed}: {status} in {(time.time() - start) / 60:.1f} min "
                 f"({len(outcome)}/{total} runs finished)")
 
@@ -202,9 +228,12 @@ def main() -> None:
         thread.join()
 
     failed = [f"{c}_seed{s}" for (c, s), status in outcome.items() if status == "FAILED"]
+    not_started = [f"{c}_seed{s}" for (c, s), status in outcome.items() if status == "not started"]
     say(f"Grid finished: {sum(v == 'done' for v in outcome.values())} done, "
         f"{sum(v == 'skipped' for v in outcome.values())} skipped, {len(failed)} failed"
-        + (f" ({', '.join(failed)})" if failed else ""))
+        + (f" ({', '.join(failed)})" if failed else "")
+        + (f", {len(not_started)} not started because of the time budget ({', '.join(not_started)})"
+           if not_started else ""))
     sys.exit(1 if failed else 0)
 
 

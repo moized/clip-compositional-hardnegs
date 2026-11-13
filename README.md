@@ -168,7 +168,9 @@ python scripts/07_make_figures.py
 
 Approximate time on one Kaggle T4: downloads 20 min, reproduction and controls 40 min,
 training data 20 min, grid (15 runs) 4 to 5 hours. `run_grid.py` skips finished steps,
-so it can be stopped and started again. A rehearsal of everything on a small sample:
+so it can be stopped and started again. With the `time_budget_hours` of `configs/main.yaml`
+it also stops starting new runs when the next one would not finish in time, so the tables
+are still built from the finished runs before Kaggle's 12-hour session limit. A rehearsal of everything on a small sample:
 `--config configs/quick.yaml` with `--results-dir results_quick`.
 
 After the manual audit of the negatives ([docs/AUDIT.md](docs/AUDIT.md)):

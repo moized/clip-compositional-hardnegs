@@ -20,3 +20,4 @@ grid:                     # scripts/run_grid.py
   warmup: 50              # as in the released NegCLIP command
   order_seeds: [0]        # COCO-Order shuffle seed used for the fine-tuned models
   zero_shot: [cifar10, cifar100]
+  time_budget_hours: 7.5  # no new run is started if it would end later than this (Kaggle stops a session after 12 h)

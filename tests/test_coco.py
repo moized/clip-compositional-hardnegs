@@ -3,7 +3,8 @@ import os
 
 import pytest
 
-from compbind.coco import CocoImages, coco_id, discover_image_dirs, folder_of, ids_with_folder
+from compbind.coco import (CocoImages, coco_id, discover_image_dirs, folder_of, ids_with_folder,
+                           make_small_copies, small_copy_path)
 
 
 def touch(path):
@@ -51,3 +52,15 @@ def test_ensure_reports_present_images_without_downloading(tmp_path):
 def test_karpathy_path_helpers():
     assert folder_of("val2014/COCO_val2014_000000391895.jpg") == "val2014"
     assert ids_with_folder(["train2014/COCO_train2014_000000000009.jpg"]) == {9: "train2014"}
+
+
+def test_small_copies_keep_the_aspect_ratio_and_never_enlarge(tmp_path):
+    Image = pytest.importorskip("PIL.Image")
+    big, small = str(tmp_path / "big.jpg"), str(tmp_path / "small.jpg")
+    Image.new("RGB", (640, 480), (200, 30, 30)).save(big)
+    Image.new("RGB", (200, 150), (30, 200, 30)).save(small)
+    folder = str(tmp_path / "copies")
+    assert make_small_copies({1: big, 2: small}, folder, shorter_side=256, progress=False) == {"present": 0, "made": 2}
+    assert Image.open(small_copy_path(folder, 1)).size == (341, 256)
+    assert Image.open(small_copy_path(folder, 2)).size == (200, 150)
+    assert make_small_copies({1: big, 2: small}, folder, progress=False) == {"present": 2, "made": 0}

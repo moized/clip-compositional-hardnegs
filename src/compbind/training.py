@@ -28,7 +28,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from . import CONDITIONS
-from .coco import CocoImages
+from .coco import CocoImages, small_copy_path
 from .losses import batch_diagnostics, clip_loss, negclip_loss
 from .models import activation_name, load_clip, save_checkpoint
 from .scoring import load_image
@@ -38,10 +38,19 @@ from .utils import ensure_dir, save_json, seed_everything
 class PairDataset(Dataset):
     """(image, caption, negative caption) triples for one training condition."""
 
-    def __init__(self, table: pd.DataFrame, images: CocoImages, transform, negatives: str):
+    def __init__(self, table: pd.DataFrame, images: CocoImages, transform, negatives: str,
+                 small_dir: str | None = None):
         if negatives not in CONDITIONS:
             raise ValueError(f"negatives must be one of {CONDITIONS}")
-        self.paths = [images.path(int(i)) for i in table["image_id"]]
+        # A reduced copy of the image is used when one exists (see coco.make_small_copies).
+        self.paths, self.n_small = [], 0
+        for image_id in table["image_id"]:
+            small = small_copy_path(small_dir, int(image_id)) if small_dir else None
+            if small and os.path.isfile(small):
+                self.paths.append(small)
+                self.n_small += 1
+            else:
+                self.paths.append(images.path(int(image_id)))
         self.captions = table["caption"].tolist()
         self.negatives = negatives
         self.transform = transform
@@ -113,7 +122,7 @@ def encode(bundle, images: torch.Tensor, texts: list, amp: bool):
 
 @torch.no_grad()
 def validate(bundle, table: pd.DataFrame, images: CocoImages, batch_size: int, workers: int,
-             amp: bool) -> dict:
+             amp: bool, small_dir: str | None = None) -> dict:
     """Held-out check: does the model prefer the true caption over each kind of negative?
 
     pair_acc_fluent      true caption vs its fluency-matched negative
@@ -122,7 +131,7 @@ def validate(bundle, table: pd.DataFrame, images: CocoImages, batch_size: int, w
     retrieval_acc        image -> caption retrieval within a batch
     """
     bundle.model.eval()
-    dataset = PairDataset(table, images, bundle.preprocess_eval, "none")
+    dataset = PairDataset(table, images, bundle.preprocess_eval, "none", small_dir)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=workers)
     columns = {"fluent": table["neg_fluent"].tolist(),
                "swap": [json.loads(t)[0] for t in table["neg_swap"]],
@@ -152,16 +161,25 @@ def train(pairs: pd.DataFrame, images: CocoImages, out_dir: str, negatives: str,
           epochs: int = 5, batch_size: int = 256, lr: float = 1e-6, weight_decay: float = 0.2,
           warmup: int = 50, workers: int = 4, device: str = "cuda", amp: bool = True,
           max_steps: int | None = None, log_every: int = 20, save_model: bool = True,
-          run_info: dict | None = None) -> dict:
-    """Fine-tune and return a summary (also written to <out_dir>/train_summary.json)."""
+          run_info: dict | None = None, small_dir: str | None = None,
+          grad_checkpointing: bool = True) -> dict:
+    """Fine-tune and return a summary (also written to <out_dir>/train_summary.json).
+
+    `grad_checkpointing` keeps only the input of every transformer block in memory and
+    recomputes the rest during the backward pass. Loss and gradients are unchanged; the
+    memory needed drops by a large factor (a batch of 256 images and 512 captions does
+    not fit in 15 GB without it), at the price of roughly one extra forward pass.
+    """
     seed_everything(seed)
     ensure_dir(out_dir)
     amp = amp and device.startswith("cuda")
     bundle = load_clip("openai", device=device, quick_gelu=True)
     model = bundle.model
+    if grad_checkpointing:
+        model.set_grad_checkpointing(True)
     train_table = pairs[pairs["split"] == "train"].reset_index(drop=True)
     val_table = pairs[pairs["split"] == "val"].reset_index(drop=True)
-    dataset = PairDataset(train_table, images, bundle.preprocess_train, negatives)
+    dataset = PairDataset(train_table, images, bundle.preprocess_train, negatives, small_dir)
     generator = torch.Generator().manual_seed(seed)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True,
                         num_workers=workers, generator=generator,
@@ -177,7 +195,7 @@ def train(pairs: pd.DataFrame, images: CocoImages, out_dir: str, negatives: str,
     if device.startswith("cuda"):
         torch.cuda.reset_peak_memory_stats()
 
-    history = [{"epoch": 0, **validate(bundle, val_table, images, batch_size, workers, amp)}] \
+    history = [{"epoch": 0, **validate(bundle, val_table, images, batch_size, workers, amp, small_dir)}] \
         if len(val_table) else []
     log_path = os.path.join(out_dir, "train_log.jsonl")
     step, losses = 0, []
@@ -228,7 +246,7 @@ def train(pairs: pd.DataFrame, images: CocoImages, out_dir: str, negatives: str,
             if len(val_table):
                 validation_start = time.time()
                 history.append({"epoch": epoch + 1,
-                                **validate(bundle, val_table, images, batch_size, workers, amp)})
+                                **validate(bundle, val_table, images, batch_size, workers, amp, small_dir)})
                 validation_seconds += time.time() - validation_start
                 print(f"[{negatives} seed {seed}] epoch {epoch + 1} validation: {history[-1]}")
             if step >= total_steps:
@@ -239,6 +257,8 @@ def train(pairs: pd.DataFrame, images: CocoImages, out_dir: str, negatives: str,
         "steps_per_epoch": steps_per_epoch, "train_pairs": int(len(train_table)),
         "val_pairs": int(len(val_table)), "activation": activation_name(model),
         "texts_per_step": batch_size * (1 if negatives == "none" else 2),
+        "grad_checkpointing": bool(grad_checkpointing),
+        "train_images_from_reduced_copies": int(dataset.n_small),
         "train_seconds": round(train_seconds, 1),
         "validation_seconds": round(validation_seconds, 1),
         "seconds_per_step": round(train_seconds / max(step, 1), 4),

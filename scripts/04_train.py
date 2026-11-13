@@ -39,6 +39,10 @@ def main() -> None:
     parser.add_argument("--max-steps", type=int, default=None, help="Stop early (for quick tests).")
     parser.add_argument("--no-amp", action="store_true", help="Full precision instead of mixed.")
     parser.add_argument("--no-save", action="store_true", help="Do not write model.pt.")
+    parser.add_argument("--full-size-images", action="store_true",
+                        help="Decode the original images instead of the reduced copies made by step 03.")
+    parser.add_argument("--no-grad-checkpointing", action="store_true",
+                        help="Keep all activations in memory (faster, needs far more GPU memory).")
     parser.add_argument("--pairs", default=None, help="Pair table (default: <data-dir>/training/pairs.csv.gz).")
     parser.add_argument("--runs-dir", default="runs")
     args = parser.parse_args()
@@ -52,7 +56,9 @@ def main() -> None:
                     epochs=args.epochs, batch_size=args.batch_size, lr=args.lr,
                     weight_decay=args.weight_decay, warmup=args.warmup, workers=args.workers,
                     device=device, amp=not args.no_amp, max_steps=args.max_steps,
-                    save_model=not args.no_save, run_info=run_record(args, device=device))
+                    save_model=not args.no_save, run_info=run_record(args, device=device),
+                    small_dir=None if args.full_size_images else paths.train_images_small,
+                    grad_checkpointing=not args.no_grad_checkpointing)
     print(f"Done: {summary['steps']} steps in {summary['train_seconds']:.0f}s, "
           f"peak GPU memory {summary['peak_gpu_memory_mb']} MB -> {out_dir}")
 

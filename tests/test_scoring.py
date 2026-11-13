@@ -97,3 +97,22 @@ def test_summarize_vg_relation_drops_symmetric_relations():
     assert out["headline"] == pytest.approx(0.75)
     assert out["micro_accuracy"]["value"] == pytest.approx(3 / 8)
     assert out["n_groups"] == 1
+
+
+def test_training_pairs_use_the_reduced_copy_when_it_exists(tmp_path):
+    import pandas as pd
+
+    from compbind.coco import small_copy_path
+    from compbind.training import PairDataset
+
+    class Originals:
+        def path(self, image_id):
+            return f"original-{image_id}.jpg"
+
+    folder = str(tmp_path)
+    open(small_copy_path(folder, 7), "wb").close()
+    table = pd.DataFrame({"image_id": [7, 8], "caption": ["a", "b"]})
+    dataset = PairDataset(table, Originals(), None, "none", small_dir=folder)
+    assert dataset.paths == [small_copy_path(folder, 7), "original-8.jpg"]
+    assert dataset.n_small == 1
+    assert PairDataset(table, Originals(), None, "none").paths == ["original-7.jpg", "original-8.jpg"]

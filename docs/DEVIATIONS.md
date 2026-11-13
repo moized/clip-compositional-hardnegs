@@ -29,6 +29,8 @@ https://github.com/mertyg/vision-language-models-are-bows at commit `81fdd20`.
 | B5 | Learning rate chosen from {1e-5, 5e-6, 1e-6} on COCO validation retrieval; the released checkpoint is the last of 5 epochs | Fixed at 1e-6, the value of the released command; the last of 5 epochs is used; held-out caption/negative pairs are monitored but select nothing | No tuning budget, and no choice that could favour one condition |
 | B6 | One run, fixed seed | Three seeds per condition | Needed to separate effects from seed noise |
 | B7 | OpenCLIP fork of 2022 | OpenCLIP 4.2.2 with the same optimiser settings (AdamW, betas 0.9/0.98, eps 1e-6, weight decay 0.2 on weight matrices, cosine schedule, 50 warm-up steps, mixed precision, temperature capped at 100) | Small numerical differences only |
+| B8 | Every image is decoded at full size at every step | Training reads reduced JPEG copies (shorter side 256 pixels, quality 95) made once by step 03; the usual random crop to 224 pixels is then applied. `--full-size-images` restores the original behaviour | Decoding full-size images limits the speed on Kaggle's four CPU cores. The model's input is 224 pixels and all conditions use the same copies, so the comparison is not affected |
+| B9 | The released command does not use gradient checkpointing | Gradient checkpointing is on | Memory only: at batch 64 the training used 5.3 to 6.7 GB, so a batch of 256 images and 512 captions would need about 19 GB, more than the 15 GB of a T4. Loss and gradients are unchanged (checked on CPU: identical to the last digit); each step takes somewhat longer |
 
 ## C. What is new here (not in any of the five papers)
 

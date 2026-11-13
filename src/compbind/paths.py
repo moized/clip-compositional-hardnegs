@@ -54,6 +54,10 @@ class DataPaths:
         return os.path.join(self.root, "training")
 
     @property
+    def train_images_small(self) -> str:
+        return os.path.join(self.root, "training", "images_small")
+
+    @property
     def cache(self) -> str:
         return os.path.join(self.root, "cache")
 

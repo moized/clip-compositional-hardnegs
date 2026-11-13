@@ -12,9 +12,9 @@ training_data:
 grid:
   conditions: [none, swap_fluent]
   seeds: [0]
-  epochs: 1
-  max_steps: 20
-  batch_size: 64
+  epochs: 2
+  max_steps: 12
+  batch_size: 256         # the real batch size, so the rehearsal also checks that it fits in GPU memory
   lr: 1.0e-6
   warmup: 5
   limit: 500              # evaluate on 500 items per benchmark

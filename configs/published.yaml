@@ -1,0 +1,99 @@
+# Published numbers, used ONLY as reference columns next to our own measurements.
+# They are never mixed with measured values: scripts/06_make_tables.py prints them in
+# separate "published" columns and names the source table.
+#
+# All values are percentages. They were copied from the papers' tables; check each one
+# against the PDF before it goes into the report.
+#
+# Short names of the sources:
+#   ARO         Yuksekgonul et al., "When and why vision-language models behave like
+#               bags-of-words, and what to do about it?", ICLR 2023, arXiv 2210.01936
+#   SugarCrepe  Hsieh et al., "SugarCrepe: Fixing hackable benchmarks for vision-language
+#               compositionality", NeurIPS 2023, arXiv 2306.14610
+#   C2LIP       Pham et al., "No Hard Negatives Required: Concept Centric Learning ...",
+#               CVPR 2026, arXiv 2603.25722
+
+aro:
+  source: "ARO, Table 6"
+  note: >-
+    Reported with two decimals. VG-Relation and VG-Attribution are macro accuracies;
+    COCO-Order ("COCO-PRC") is plain accuracy with 5 choices. CLIP-FT is CLIP fine-tuned
+    on COCO without hard negatives. Each model was run once.
+  models:
+    clip:    {vg_relation: 59, vg_attribution: 62, coco_order: 46}
+    clip_ft: {vg_relation: 63, vg_attribution: 65, coco_order: 36}
+    negclip: {vg_relation: 81, vg_attribution: 71, coco_order: 86}
+
+aro_downstream:
+  source: "ARO, Table 6"
+  note: >-
+    Zero-shot protocol (prompts, tool) is not stated in the paper. Retrieval is Recall@1
+    on COCO.
+  models:
+    clip:    {cifar10: 95, cifar100: 80, imagenet1k: 75, coco_text_r1: 50, coco_image_r1: 30}
+    clip_ft: {cifar10: 95, cifar100: 80, imagenet1k: 74, coco_text_r1: 59, coco_image_r1: 42}
+    negclip: {cifar10: 94, cifar100: 79, imagenet1k: 72, coco_text_r1: 56, coco_image_r1: 41}
+
+aro_remeasured_by_sugarcrepe:
+  source: "SugarCrepe, Table 8"
+  note: >-
+    CLIP ViT-B/32 re-evaluated on ARO by the SugarCrepe authors. Their VG-Relation
+    value equals the per-item (micro) accuracy, not ARO's macro accuracy.
+  models:
+    clip: {vg_relation_micro: 51.12, coco_order: 37.14}
+
+text_only_on_aro:
+  source: "SugarCrepe, Table 8"
+  note: >-
+    Text-only models (no image). Vera is a plausibility model, Grammar is a CoLA
+    classifier. This project re-implements the Grammar model and adds GPT-2; Vera is
+    not re-run.
+  models:
+    vera:    {vg_relation: 61.71, vg_attribution: 82.59, coco_order: 59.81}
+    grammar: {vg_relation: 59.55, vg_attribution: 58.38, coco_order: 74.33}
+
+sugarcrepe_subsets:
+  note: Accuracy on each of the seven SugarCrepe subsets.
+  order: [replace_obj, replace_att, replace_rel, swap_obj, swap_att, add_obj, add_att]
+  models:
+    clip:
+      source: "SugarCrepe, Table 6"
+      values: [90.92, 80.08, 69.20, 61.38, 63.96, 77.21, 68.79]
+    negclip:
+      source: "C2LIP, Table A3 (released NegCLIP checkpoint, one decimal)"
+      values: [92.7, 85.9, 76.5, 75.2, 75.4, 88.8, 82.8]
+
+sugarcrepe_categories_pooled:
+  source: "SugarCrepe, Table 5"
+  note: >-
+    Category scores in the SugarCrepe paper pool all items of a category (larger subsets
+    weigh more). "clip_ft" is their CLIP fine-tuned on COCO without hard negatives.
+  models:
+    clip:    {replace: 80.76, swap: 63.27, add: 75.09}
+    clip_ft: {replace: 84.76, swap: 70.83, add: 85.58}
+    negclip: {replace: 85.36, swap: 75.33, add: 87.29}
+
+sugarcrepe_mean_of_subsets:
+  source: "C2LIP, Table A3"
+  note: Plain mean of the seven subset accuracies (one decimal).
+  models:
+    clip:    {overall: 73.1}
+    negclip: {overall: 82.5}
+
+zero_shot_clip_benchmark:
+  source: "C2LIP, Table A6"
+  note: >-
+    Zero-shot top-1 accuracy measured by the C2LIP authors with CLIP_benchmark, all
+    models in one environment. This project uses the same tool.
+  models:
+    clip:    {imagenet1k: 63.3, cifar10: 89.8, cifar100: 64.3}
+    negclip: {imagenet1k: 55.7, cifar10: 85.9, cifar100: 60.9}
+
+benchmark_sizes:
+  source: "SugarCrepe, Table 2 / ARO, Section 2"
+  note: >-
+    The SugarCrepe repository at the pinned commit has 245 swap_obj items (7,511 in
+    total); the paper lists 246 (7,512).
+  sugarcrepe: {replace_obj: 1652, replace_att: 788, replace_rel: 1406, swap_obj: 246,
+               swap_att: 666, add_obj: 2062, add_att: 692}
+  aro: {vg_relation: 23937, vg_attribution: 28748}

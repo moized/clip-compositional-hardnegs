@@ -95,8 +95,14 @@ def load_clip(source: str = "openai", device: str = "cpu", quick_gelu: bool = Tr
             model, preprocess_train, preprocess_eval = open_clip.create_model_and_transforms(
                 arch, pretrained="openai")
     else:
-        model, preprocess_train, preprocess_eval = open_clip.create_model_and_transforms(
-            arch, pretrained=None)
+        import logging
+
+        logging.disable(logging.WARNING)      # open_clip warns "initialized randomly"; the weights
+        try:                                  # are loaded from the file two lines below
+            model, preprocess_train, preprocess_eval = open_clip.create_model_and_transforms(
+                arch, pretrained=None)
+        finally:
+            logging.disable(logging.NOTSET)
         result = model.load_state_dict(read_state_dict(source, trust_checkpoint), strict=True)
         assert not result.missing_keys and not result.unexpected_keys
     model = model.float().to(device).eval()

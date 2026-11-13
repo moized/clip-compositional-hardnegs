@@ -727,7 +727,7 @@ def table_cost(results: Results, published: dict, n_boot: int = 2000) -> Table:
     """What fine-tuning costs: zero-shot accuracy, retrieval and training resources."""
     grid = results.grid()
     datasets = []
-    for name in ["clip", "negclip"] + [n for runs in grid.values() for n in runs.values()]:
+    for name in ["clip", "negclip", "negclip_gelu"] + [n for runs in grid.values() for n in runs.values()]:
         for dataset in ((results.downstream(name) or {}).get("zero_shot") or {}):
             if dataset not in datasets:
                 datasets.append(dataset)
@@ -748,7 +748,7 @@ def table_cost(results: Results, published: dict, n_boot: int = 2000) -> Table:
         return row
 
     rows = []
-    for name in ("clip", "negclip"):
+    for name in ("clip", "negclip", "negclip_gelu"):
         if results.downstream(name) is not None:
             rows.append(row_for(f"{REFERENCE_LABELS[name]} [not trained here]", [name], ""))
     for condition, runs in grid.items():

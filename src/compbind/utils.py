@@ -57,31 +57,46 @@ def load_json(path: str) -> Any:
         return json.load(f)
 
 
-def git_commit(repo_dir: str | None = None) -> str | None:
-    """Commit hash of this repository (or of `repo_dir`), or None if unavailable."""
+def _git(arguments: list, repo_dir: str | None = None) -> str | None:
     repo_dir = repo_dir or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     try:
-        out = subprocess.run(
-            ["git", "-C", repo_dir, "rev-parse", "HEAD"],
-            capture_output=True, text=True, timeout=10, check=True,
-        )
+        out = subprocess.run(["git", "-C", repo_dir, *arguments], capture_output=True, text=True,
+                             timeout=10, check=True)
         return out.stdout.strip()
     except Exception:
         return None
 
 
+def git_commit(repo_dir: str | None = None) -> str | None:
+    """Commit hash of this repository (or of `repo_dir`), or None if unavailable."""
+    return _git(["rev-parse", "HEAD"], repo_dir)
+
+
+def git_modified(repo_dir: str | None = None) -> bool | None:
+    """True if tracked files differ from the commit (the hash alone would then mislead)."""
+    status = _git(["status", "--porcelain", "--untracked-files=no"], repo_dir)
+    return None if status is None else bool(status)
+
+
+# import name -> name of the installed distribution (for the version that pip reports)
+_PACKAGES = {"torch": "torch", "torchvision": "torchvision", "open_clip": "open_clip_torch",
+             "transformers": "transformers", "spacy": "spacy", "nltk": "nltk", "numpy": "numpy",
+             "pandas": "pandas", "clip_benchmark": "clip-benchmark"}
+
+
 def environment_info() -> dict:
     """Library versions and hardware, saved next to every result for reproducibility."""
+    from importlib import metadata
+
     info: dict[str, Any] = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "git_commit": git_commit(),
+        "git_modified": git_modified(),
     }
-    for name in ("torch", "torchvision", "open_clip", "transformers", "spacy", "nltk",
-                 "numpy", "pandas", "clip_benchmark"):
+    for name, distribution in _PACKAGES.items():
         try:
-            module = __import__(name)
-            info[name] = getattr(module, "__version__", "unknown")
+            info[name] = metadata.version(distribution)
         except Exception:
             info[name] = None
     try:

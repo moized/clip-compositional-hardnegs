@@ -106,7 +106,9 @@ pairs (see `results/training_data/stats.json`), so the cue is reduced, not remov
 - SugarCrepe uses COCO val2017 images, which are part of val2014. COCO-Order and the
   retrieval test use the Karpathy test split, also part of val2014.
 - ARO's Visual Genome images partly come from COCO; Visual Genome's metadata gives
-  the COCO id of each.
+  the COCO id of each. The ids of ARO's 6,603 images (3,225 from COCO) are also stored in
+  `src/compbind/resources/aro_vg_to_coco.csv`, so the check works when the Visual Genome
+  server is down (`overlap.py`).
 - So the pool is: train2014 images only, minus the COCO images used by ARO.
   `leak_report` counts the overlap with every test set and the builder stops if any is
   not zero. Training and validation images are different images.

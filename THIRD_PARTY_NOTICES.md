@@ -63,6 +63,7 @@ The MIT License of the projects above:
 | COCO images and captions | https://cocodataset.org | images: Flickr terms of use; annotations: CC BY 4.0 |
 | COCO Karpathy split files | BLIP project (Salesforce) storage | follows COCO |
 | Visual Genome images and metadata (ARO's VG-Relation / VG-Attribution) | ARO repository links; https://visualgenome.org | CC BY 4.0 |
+| COCO ids of ARO's Visual Genome images, `src/compbind/resources/aro_vg_to_coco.csv` (in this repository) | derived from Visual Genome's `image_data.json` (Krishna et al., *Visual Genome*, IJCV 2017) | CC BY 4.0 |
 | SugarCrepe annotations | SugarCrepe repository | MIT |
 | NegCLIP checkpoint and training file | ARO repository links | MIT (repository licence) |
 | OpenAI CLIP ViT-B/32 weights | via OpenCLIP | MIT |

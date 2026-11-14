@@ -9,7 +9,8 @@ What is fetched:
               from the ARO repository), plus the authors' released NegCLIP training file
   negclip     the released NegCLIP checkpoint (1.8 GB, Google Drive)
   karpathy    COCO Karpathy split files
-  vg_meta     Visual Genome image metadata (maps VG images to COCO ids)
+  vg_meta     Visual Genome image metadata (maps VG images to COCO ids). Optional: the ids
+              needed ship with the repository, so a failed download only prints a note
   coco_eval   the COCO images used by SugarCrepe and COCO-Order (about 6,400 files)
 
 Training images are fetched later by scripts/03_build_training_data.py, once the
@@ -26,7 +27,7 @@ import zipfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-from compbind import aro, sugarcrepe  # noqa: E402
+from compbind import aro, overlap, sugarcrepe  # noqa: E402
 from compbind.benchmarks import needed_coco_ids  # noqa: E402
 from compbind.coco import CocoImages, download_file, load_karpathy  # noqa: E402
 from compbind.paths import (ARO_COMMIT, ARO_REPO, SUGARCREPE_COMMIT, SUGARCREPE_REPO,  # noqa: E402
@@ -73,6 +74,8 @@ def main() -> None:
     parser.add_argument("--only", nargs="*", default=list(STEPS), choices=STEPS,
                         help="Steps to run (default: all).")
     parser.add_argument("--download-workers", type=int, default=16)
+    parser.add_argument("--write-vg-mapping", action="store_true",
+                        help="Recreate src/compbind/resources/aro_vg_to_coco.csv from image_data.json.")
     args = parser.parse_args()
     paths = DataPaths(ensure_dir(args.data_dir))
     manifest = {"run": run_record(args), "files": {},
@@ -112,11 +115,26 @@ def main() -> None:
     if "vg_meta" in args.only:
         if not os.path.isfile(paths.vg_image_data):
             archive = paths.vg_image_data + ".zip"
-            download_file(VG_IMAGE_DATA_URL, archive)
-            with zipfile.ZipFile(archive) as z:
-                z.extractall(os.path.dirname(paths.vg_image_data))
-            os.remove(archive)
-        print("Visual Genome metadata: ok")
+            try:
+                download_file(VG_IMAGE_DATA_URL, archive)
+                with zipfile.ZipFile(archive) as z:
+                    z.extractall(os.path.dirname(paths.vg_image_data))
+                os.remove(archive)
+            except (OSError, zipfile.BadZipFile) as err:
+                print(f"Visual Genome metadata could not be downloaded ({err}).\n"
+                      "This is not a problem: the COCO ids of ARO's images ship with the repository "
+                      "(src/compbind/resources/aro_vg_to_coco.csv) and are used instead.")
+        if os.path.isfile(paths.vg_image_data):
+            if args.write_vg_mapping:
+                print("Wrote", overlap.write_bundled_mapping(paths.aro, paths.vg_image_data), "rows to",
+                      overlap.RESOURCE)
+            check = overlap.compare_with_bundled(paths.aro, paths.vg_image_data)
+            manifest["vg_mapping_check"] = check
+            print("Visual Genome metadata: ok; the bundled COCO ids "
+                  + ("agree with it" if check["agree"] else
+                     f"DIFFER for {check['differences']} images, e.g. {check['examples']} "
+                     "(image_data.json is used; recreate the list with --write-vg-mapping)"))
+        manifest["vg_to_coco_source"] = overlap.mapping_source(paths.vg_image_data)
 
     if "coco_eval" in args.only:
         images = CocoImages(args.coco_roots, download_dir=paths.coco_download)
@@ -139,6 +157,8 @@ def main() -> None:
         if os.path.isfile(path):
             manifest["files"][label] = {"path": os.path.relpath(path, paths.root),
                                         "bytes": os.path.getsize(path), "sha256": sha256(path)}
+    manifest["bundled_files"] = {"aro_vg_to_coco": {"path": "src/compbind/resources/aro_vg_to_coco.csv",
+                                                    "sha256": sha256(overlap.RESOURCE)}}
     save_json(manifest, os.path.join(paths.root, "data_manifest.json"))
     print("Wrote", os.path.join(paths.root, "data_manifest.json"))
 

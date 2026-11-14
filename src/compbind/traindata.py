@@ -38,6 +38,7 @@ def leak_free_pool(paths: DataPaths, max_images: int | None = None, seed: int = 
     aro_ids = overlap.aro_coco_ids(paths.aro, paths.vg_image_data)
     in_aro = pool["image_id"].isin(aro_ids)
     stats["images_removed_because_in_aro_test"] = int(pool.loc[in_aro, "image_id"].nunique())
+    stats["aro_coco_ids_from"] = overlap.mapping_source(paths.vg_image_data)
     pool = pool[~in_aro]
     pool["caption"] = pool["caption"].map(normalize_caption)
     pool = pool[pool["caption"].str.len() > 0].drop_duplicates(["image_id", "caption"])

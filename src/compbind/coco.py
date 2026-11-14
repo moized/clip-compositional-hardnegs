@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import threading
 import time
 import urllib.request
@@ -212,7 +213,7 @@ def make_small_copies(sources: dict, folder: str, shorter_side: int = 256, worke
     return stats
 
 
-def download_file(url: str, target: str, retries: int = 4) -> str:
+def download_file(url: str, target: str, retries: int = 4, timeout: float = 60) -> str:
     """Download `url` to `target` unless it already exists."""
     if os.path.isfile(target) and os.path.getsize(target) > 0:
         return target
@@ -221,7 +222,9 @@ def download_file(url: str, target: str, retries: int = 4) -> str:
     for attempt in range(retries):
         try:
             tmp = target + ".part"
-            urllib.request.urlretrieve(url, tmp)
+            # the timeout applies to each network operation, so a slow but working download is fine
+            with urllib.request.urlopen(url, timeout=timeout) as response, open(tmp, "wb") as out:
+                shutil.copyfileobj(response, out, length=1 << 20)
             os.replace(tmp, target)
             return target
         except Exception as err:

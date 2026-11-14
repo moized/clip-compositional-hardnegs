@@ -106,7 +106,7 @@ file sizes and SHA-256 hashes are written to `data/data_manifest.json`.
 | ARO: VG-Relation, VG-Attribution annotations and images | Google Drive links of the ARO repository, commit `81fdd20` | 0.9 GB |
 | NegCLIP released checkpoint and training file | ARO repository | 1.7 GB |
 | COCO Karpathy split files | BLIP project storage | 84 MB |
-| Visual Genome image metadata | visualgenome.org | 17 MB |
+| Visual Genome image metadata (optional) | visualgenome.org. The only part used, the COCO ids of ARO's images, also ships with the repository (`src/compbind/resources/aro_vg_to_coco.csv`), so the experiments run when that server is down | 17 MB |
 | COCO images: 6,377 for evaluation, then the training subset | images.cocodataset.org, one file at a time; or any local COCO copy via `--coco-roots` | about 1 GB + 8 GB |
 | CIFAR-10 / CIFAR-100 | torchvision | 365 MB |
 | ImageNet validation set (optional) | not downloaded; pass `--imagenet-root` | |

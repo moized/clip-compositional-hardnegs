@@ -91,7 +91,11 @@ def test_every_table_builds_or_reports_what_is_missing(results_dir):
     assert set(built) == {"reproduction_aro", "reproduction_sugarcrepe", "reproduction_text_only", "controls",
                           "per_relation", "slices_text_only",
                           "slices_seen_images", "conditions_compositional", "conditions_differences",
-                          "conditions_slices", "cost", "validation"}
+                          "conditions_slices", "conditions_shuffled_image", "cost", "validation", "hypotheses"}
+    decisions = built["hypotheses"].frame
+    assert (decisions["Hypothesis"] == "H3 (primary)").sum() == 1
+    assert set(decisions["Outcome"]) <= {"supported", "not supported", "contradicted",
+                                         "not supported (seeds disagree)"}
     conditions = built["conditions_compositional"].frame
     assert conditions["Model"].str.contains("swap_fluent").any()
     assert "swap − none" in set(built["conditions_differences"].frame["Comparison"])

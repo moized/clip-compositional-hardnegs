@@ -805,8 +805,169 @@ def table_validation(results: Results, published: dict, n_boot: int = 2000) -> T
     ])
 
 
+def table_conditions_shuffled(results: Results, published: dict, n_boot: int = 2000) -> Table:
+    """How often each model picks the true caption when shown another item's image."""
+    grid = _grid(results)
+
+    def row(label: str, names: list, seeds) -> dict:
+        out = {"Model": label, "Seeds": seeds}
+        for benchmark in BENCHMARKS:
+            out[BENCHMARK_LABELS[benchmark]] = mean_pm_std(_column_values(
+                results, names, lambda n, b=benchmark: first_seed(results.entry(n, b))["shuffled_image"]))
+        return out
+
+    rows = [row(f"{REFERENCE_LABELS[name]} [not trained here]", [name], "")
+            for name in ("clip", "negclip") if results.summary(name) is not None]
+    rows += [row(CONDITION_LABELS[c], list(runs.values()), len(runs)) for c, runs in grid.items()]
+    return Table("conditions_shuffled_image", "Text-side preference: accuracy when the image is replaced by another "
+                 "item's image", pd.DataFrame(rows), [
+        "Accuracy (%) when each item's captions are scored against the image of a different test item; "
+        "mean ± standard deviation over training seeds; COCO-Order with shuffle seed 0. If a model's choice "
+        "depended only on the image, it would be near chance (50%; 20% for COCO-Order). A higher value means "
+        "the model prefers the true caption from the text alone.",
+        "Pre-registered secondary check of H3 (HYPOTHESES.md): on the ARO tasks, none < swap_fluent < swap.",
+    ])
+
+
+# ----------------------------------------------------------------------------- pre-registered decisions
+
+ARO_TASKS = ("vg_relation", "vg_attribution", "coco_order")
+# (hypothesis, prediction in words, rule, A, B, benchmarks, slice of items)
+# Rules, as defined in HYPOTHESES.md:
+#   greater          A > B: interval above zero and A higher than B in every seed pair
+#   not_greater      contradicted only if A > B holds
+#   not_less         contradicted only if B > A holds
+#   interval_not_below  supported if the interval of A - B includes zero or lies above it
+#   no_difference    supported if the interval includes zero
+DECISIONS = (
+    ("H3 (primary)", "swap_fluent > none", "greater", "swap_fluent", "none", ("sugarcrepe",), None),
+    ("H3b", "swap_fluent > none", "greater", "swap_fluent", "none", ARO_TASKS, None),
+    ("H3b", "swap > swap_fluent", "greater", "swap", "swap_fluent", ARO_TASKS, None),
+    ("H3c.1", "swap > swap_fluent where GPT-2 is right", "greater", "swap", "swap_fluent", ARO_TASKS, "right"),
+    ("H3c.2", "swap_fluent − swap ≥ 0 where GPT-2 is wrong", "interval_not_below", "swap_fluent", "swap",
+     ARO_TASKS, "wrong"),
+    ("H3c.3", "swap_fluent and swap do not differ", "no_difference", "swap_fluent", "swap", ("sugarcrepe",), None),
+    ("H4a", "random does not improve over none", "not_greater", "random", "none", BENCHMARKS, None),
+    ("H4b", "swap_nosym is not worse than swap", "not_less", "swap_nosym", "swap", BENCHMARKS, None),
+)
+
+
+def _decide(rule: str, diff: dict, per_seed: list) -> str:
+    low, high = diff["ci_low"], diff["ci_high"]
+    a_greater = low > 0 and all(d > 0 for d in per_seed)
+    b_greater = high < 0 and all(d < 0 for d in per_seed)
+    if rule == "greater":
+        if a_greater:
+            return "supported"
+        if high < 0:
+            return "contradicted"
+        return "not supported (seeds disagree)" if low > 0 else "not supported"
+    if rule == "not_greater":
+        return "contradicted" if a_greater else "supported"
+    if rule == "not_less":
+        return "contradicted" if b_greater else "supported"
+    if rule == "interval_not_below":
+        return "supported" if high >= 0 else "contradicted"
+    if rule == "no_difference":
+        return "supported" if low <= 0 <= high else "not supported"
+    raise ValueError(rule)
+
+
+def _paired_comparison(results: Results, grid: dict, benchmark: str, a: str, b: str, which, n_boot: int):
+    """A − B: seed-averaged paired difference with its interval, and the difference in each seed pair.
+
+    Only seeds that both conditions completed are used. `which` restricts the items to
+    those the text-only model (GPT-2) gets right ("right") or wrong ("wrong").
+    """
+    seeds = sorted(set(grid[a]) & set(grid[b]))
+    tables = [results.items(grid[c][seed], benchmark) for c in (a, b) for seed in seeds]
+    if not seeds or any(t is None for t in tables):
+        raise MissingInput(f"per-item results of {a} and {b} on {benchmark}")
+    tables = aligned(tables)
+    tables_a, tables_b = tables[:len(seeds)], tables[len(seeds):]
+    base = tables_a[0]
+    correct_a = np.mean([t["correct"].values for t in tables_a], axis=0)
+    correct_b = np.mean([t["correct"].values for t in tables_b], axis=0)
+    if which is None:
+        diff = headline_difference(benchmark, base, correct_a, correct_b, n_boot)
+        keep, groups, _ = metric_parts(benchmark, base)
+
+        def headline(table: pd.DataFrame) -> float:
+            kept = table[keep]
+            if groups is None:
+                return float(kept["correct"].mean())
+            return float(kept.groupby("group")["correct"].mean().mean())
+
+        per_seed = [headline(ta) - headline(tb) for ta, tb in zip(tables_a, tables_b)]
+    else:
+        blind = results.blind(benchmark)
+        if blind is None:
+            raise MissingInput("results/text_only")
+        gpt2_right = base["item_id"].map(dict(zip(blind["item_id"], blind["gpt2_correct"])))
+        if gpt2_right.isna().any():
+            raise MissingInput(f"text-only results for every {benchmark} item")
+        mask = (gpt2_right.values == 1) if which == "right" else (gpt2_right.values == 0)
+        diff = paired_difference(correct_a[mask], correct_b[mask], clusters=base["image_id"].values[mask],
+                                 n_boot=n_boot)
+        per_seed = [float(ta["correct"].values[mask].mean() - tb["correct"].values[mask].mean())
+                    for ta, tb in zip(tables_a, tables_b)]
+    return diff, per_seed, seeds
+
+
+def table_hypotheses(results: Results, published: dict, n_boot: int = 2000) -> Table:
+    """Every pre-registered prediction of HYPOTHESES.md, decided by its stated rule."""
+    grid = _grid(results)
+    rows = []
+    for hypothesis, prediction, rule, a, b, benchmarks, which in DECISIONS:
+        if a not in grid or b not in grid:
+            continue
+        for benchmark in benchmarks:
+            try:
+                diff, per_seed, seeds = _paired_comparison(results, grid, benchmark, a, b, which, n_boot)
+            except MissingInput:
+                continue
+            rows.append({
+                "Hypothesis": hypothesis, "Prediction": prediction,
+                "Benchmark": BENCHMARK_LABELS[benchmark] + {"right": ", GPT-2 right", "wrong": ", GPT-2 wrong",
+                                                            None: ""}[which],
+                "Measured A − B [95% CI]": f"{a} − {b}: {signed_ci(diff)}",
+                "Per seed pair": ", ".join(f"{100 * d:+.1f}" for d in per_seed) + f" (seeds {seeds})",
+                "Outcome": _decide(rule, diff, per_seed),
+            })
+    clip = (results.downstream("clip") or {}).get("zero_shot", {}).get("cifar100")
+    if clip is not None:
+        for condition, runs in grid.items():
+            values = _column_values(results, list(runs.values()),
+                                    lambda n: results.downstream(n)["zero_shot"]["cifar100"]["acc1"])
+            values = [v for v in values if v is not None]
+            if not values:
+                continue
+            change = 100 * (np.mean(values) - clip["acc1"])
+            loses = condition in ("swap", "swap_nosym", "swap_fluent")
+            supported = change < -1.0 if loses else abs(change) <= 1.0
+            rows.append({
+                "Hypothesis": "H5", "Prediction": f"{condition} " + ("loses > 1 point" if loses else "within 1 point"),
+                "Benchmark": "CIFAR-100 zero-shot",
+                "Measured A − B [95% CI]": f"{condition} − CLIP: {change:+.1f} (seed mean)",
+                "Per seed pair": ", ".join(f"{100 * (v - clip['acc1']):+.1f}" for v in values),
+                "Outcome": "supported" if supported else "contradicted",
+            })
+    if not rows:
+        raise MissingInput("no pre-registered comparison has its inputs yet")
+    return Table("hypotheses", "Pre-registered predictions and their outcomes", pd.DataFrame(rows), [
+        "Each row applies the rule stated in HYPOTHESES.md (finalised before the full run). A > B: the 95% "
+        "cluster-bootstrap interval of the seed-averaged paired difference lies above zero and A is higher "
+        "than B in every seed pair (seed k vs seed k). 'No difference' means the interval includes zero, "
+        "which is not proof of equality.",
+        "Differences are in percentage points: headline metrics without a slice; per-item accuracy on the "
+        "items GPT-2 gets right or wrong without the image. Only seeds completed by both conditions are used.",
+        "H3 on SugarCrepe is the only primary test; all other rows are secondary.",
+        "H5 compares the seed mean of CIFAR-100 zero-shot accuracy with pretrained CLIP from the same results.",
+    ])
+
+
 ALL_TABLES = (table_reproduction_aro, table_reproduction_sugarcrepe, table_reproduction_text_only,
               table_controls, table_per_relation,
               table_slices_text_only, table_slices_seen, table_training_negatives,
               table_conditions, table_condition_differences, table_condition_slices,
-              table_cost, table_validation)
+              table_conditions_shuffled, table_cost, table_validation, table_hypotheses)

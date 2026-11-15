@@ -1,0 +1,120 @@
+{
+  "negatives": "none",
+  "seed": 1,
+  "epochs": 5,
+  "batch_size": 256,
+  "lr": 1e-06,
+  "weight_decay": 0.2,
+  "warmup": 50,
+  "amp": true,
+  "steps": 995,
+  "steps_per_epoch": 199,
+  "train_pairs": 51078,
+  "val_pairs": 2054,
+  "activation": "QuickGELU",
+  "texts_per_step": 256,
+  "grad_checkpointing": true,
+  "train_images_from_reduced_copies": 51078,
+  "train_seconds": 1428.9,
+  "validation_seconds": 56.8,
+  "seconds_per_step": 1.436,
+  "peak_gpu_memory_mb": 4078.7,
+  "final_loss": 0.3934763953089714,
+  "validation": [
+    {
+      "epoch": 0,
+      "pair_acc_fluent": 0.6197663096397273,
+      "pair_acc_swap": 0.6523855890944499,
+      "pair_acc_swap_nosym": 0.6533592989289192,
+      "retrieval_acc": 0.7249269718784901,
+      "n": 2054
+    },
+    {
+      "epoch": 1,
+      "pair_acc_fluent": 0.6324245374878287,
+      "pair_acc_swap": 0.6757546251217137,
+      "pair_acc_swap_nosym": 0.6660175267770204,
+      "retrieval_acc": 0.7921129503407984,
+      "n": 2054
+    },
+    {
+      "epoch": 2,
+      "pair_acc_fluent": 0.6309639727361246,
+      "pair_acc_swap": 0.6820837390457644,
+      "pair_acc_swap_nosym": 0.6611489776046738,
+      "retrieval_acc": 0.8003894839337877,
+      "n": 2054
+    },
+    {
+      "epoch": 3,
+      "pair_acc_fluent": 0.6270691333982473,
+      "pair_acc_swap": 0.675267770204479,
+      "pair_acc_swap_nosym": 0.6548198636806232,
+      "retrieval_acc": 0.8057448880233691,
+      "n": 2054
+    },
+    {
+      "epoch": 4,
+      "pair_acc_fluent": 0.6256085686465434,
+      "pair_acc_swap": 0.6699123661148978,
+      "pair_acc_swap_nosym": 0.6499513145082765,
+      "retrieval_acc": 0.807205452775073,
+      "n": 2054
+    },
+    {
+      "epoch": 5,
+      "pair_acc_fluent": 0.6280428432327166,
+      "pair_acc_swap": 0.6708860759493671,
+      "pair_acc_swap_nosym": 0.6533592989289192,
+      "retrieval_acc": 0.808666017526777,
+      "n": 2054
+    }
+  ],
+  "run": {
+    "command": "/kaggle/working/clip-compositional-hardnegs/scripts/04_train.py --data-dir /kaggle/temp/data --batch-size 256 --workers 2 --coco-roots /kaggle/input --negatives none --seed 1 --epochs 5 --lr 1e-06 --warmup 50 --runs-dir /kaggle/temp/runs",
+    "started_utc": "2026-11-14T21:25:28Z",
+    "environment": {
+      "python": "3.13.16",
+      "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+      "git_commit": "0ed6ded3775e5f16b5935e9215cc261dc9c5db04",
+      "git_modified": false,
+      "torch": "2.11.0+cu130",
+      "torchvision": "0.26.0+cu130",
+      "open_clip": "4.2.2",
+      "transformers": "5.20.2",
+      "spacy": "3.8.16",
+      "nltk": "3.9.1",
+      "numpy": "2.1.3",
+      "pandas": "2.3.3",
+      "clip_benchmark": "1.6.2",
+      "spacy_model": "3.8.0",
+      "cuda": true,
+      "gpu": "Tesla T4",
+      "gpu_count": 1
+    },
+    "args": {
+      "data_dir": "/kaggle/temp/data",
+      "coco_roots": [
+        "/kaggle/input"
+      ],
+      "device": null,
+      "batch_size": 256,
+      "workers": 2,
+      "negatives": "none",
+      "seed": 1,
+      "epochs": 5,
+      "lr": 1e-06,
+      "weight_decay": 0.2,
+      "warmup": 50,
+      "max_steps": null,
+      "no_amp": false,
+      "no_save": false,
+      "full_size_images": false,
+      "no_grad_checkpointing": false,
+      "pairs": null,
+      "runs_dir": "/kaggle/temp/runs"
+    },
+    "device": "cuda"
+  },
+  "checkpoint": "/kaggle/temp/runs/none_seed1/model.pt"
+}

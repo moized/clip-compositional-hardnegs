@@ -1,0 +1,31 @@
+category,item_id,group,image_id,a_correct,b_correct,a_margin,b_margin,gpt2_gap,true_caption,false_captions,image_file
+"A right, B wrong",replace_rel/845,replace_rel,201646,1,0,0.0173,-0.0101,-0.481,A serious man is holding video game controllers.,A serious man is putting down video game controllers.,000000201646.jpg
+"A right, B wrong",add_obj/2006,add_obj,424721,1,0,0.038,-0.0176,0.046,Fruits and vegetables inside of a cooking pot.,Eggs and vegetables are inside of a cooking pot.,000000424721.jpg
+"A right, B wrong",add_att/460,add_att,296284,1,0,0.0029,-0.0068,0.021,A rack with some doughnuts in a glass case.,A rack with some spiral-shaped doughnuts in a glass case.,COCO_val2014_000000296284.jpg
+"A right, B wrong",add_obj/900,add_obj,294831,1,0,0.0346,-0.0077,-0.838,Two slices of chicken pizza on a plate.,Two slices of chicken pizza and an ice cream sundae are on a plate.,COCO_val2014_000000294831.jpg
+"A right, B wrong",add_obj/139,add_obj,157124,1,0,0.0304,-0.0224,-0.716,there are several different sinks of all different colors,There are several different sinks and mirrors of all different colors.,000000157124.jpg
+"A right, B wrong",swap_att/147,swap_att,367082,1,0,0.0107,-0.0046,-0.483,Brown and black dog sitting on the brown couch by itself. ,Black and brown dog sitting on the black couch by itself.,000000367082.jpg
+"A right, B wrong",add_att/10,add_att,554735,1,0,0.0185,-0.0067,0.356,They are going to serve pizza for lunch today.,They are going to serve pizza topped with pineapple for lunch today.,000000554735.jpg
+"A right, B wrong",swap_obj/161,swap_obj,16228,1,0,0.0054,-0.0041,0.04,A horse pulling a wagon with a conductor down the road. ,A conductor pulling a wagon with a horse down the road.,000000016228.jpg
+"A right, B wrong",replace_att/152,replace_att,356248,1,0,0.0203,-0.0122,-1.268, a man holding onto a little blond girl ,A man holding onto a little brunette girl.,000000356248.jpg
+"A right, B wrong",add_obj/1935,add_obj,236412,1,0,0.0331,-0.0059,0.658,A homemade cheese pizza and crackers are on the table.,A homemade cheese pizza and salad are on the table with crackers.,000000236412.jpg
+"A wrong, B right",swap_att/584,swap_att,219485,0,1,-0.0043,0.0059,0.613,A gray cat is sitting in a tall window.,A tall cat is sitting in a gray window.,000000219485.jpg
+"A wrong, B right",add_obj/734,add_obj,223130,0,1,-0.0071,0.0071,-0.346,A tall giraffe stretches to reach high leaves on a tree.,A tall giraffe stretches to reach a bird's nest and high leaves on a tree.,000000223130.jpg
+"A wrong, B right",add_att/430,add_att,163057,0,1,-0.0022,0.0172,0.62,People fly kites in a large park in the middle of a city.,People fly sparkling kites in a large park in the middle of a city.,000000163057.jpg
+"A wrong, B right",swap_att/211,swap_att,348488,0,1,-0.0089,0.0107,0.141,A brown vase has four black horses on it.,A black vase has four brown horses on it.,000000348488.jpg
+"A wrong, B right",replace_rel/1088,replace_rel,351823,0,1,-0.0,0.0057,0.302,A man holds a tennis racket on a tennis court.,A man holds a tennis racket off a tennis court.,000000351823.jpg
+"A wrong, B right",replace_rel/1194,replace_rel,226130,0,1,-0.0097,0.0052,0.416,two hot dogs in buns sitting on a white plate,Two hot dogs in buns aside from a white plate.,000000226130.jpg
+"A wrong, B right",replace_att/784,replace_att,345027,0,1,-0.0006,0.0009,-0.069,A moped and utility truck next to a small building.,A moped and utility truck next to a large building.,000000345027.jpg
+"A wrong, B right",replace_rel/775,replace_rel,135561,0,1,-0.0208,0.0272,-0.798,A kitchen illuminated by a track lighting unit. ,A kitchen darkened by a power outage.,000000135561.jpg
+"A wrong, B right",add_obj/684,add_obj,369370,0,1,-0.0018,0.002,-0.347,A delicious sandwich layered with meat and dressed with avocado lies on a cutting board.,A delicious sandwich layered with pickles and meat and dressed with avocado lies on a cutting board.,000000369370.jpg
+"A wrong, B right",replace_rel/1228,replace_rel,399205,0,1,-0.0083,0.0083,-0.468,A group of men standing around a sidewalk together.,A group of men sitting on a sidewalk together.,COCO_val2014_000000399205.jpg
+both wrong,swap_att/303,swap_att,394677,0,0,-0.0137,-0.0007,-0.279,"A woman falling asleep next to a man, who are both sitting down.","A woman sitting down next to a man, who are both falling asleep.",000000394677.jpg
+both wrong,swap_att/91,swap_att,146825,0,0,-0.0219,-0.0061,0.5,a train covered in black dirt sitting in a fancy train station,a train covered in fancy dirt sitting in a black train station.,000000146825.jpg
+both wrong,replace_rel/1137,replace_rel,351810,0,0,-0.0052,-0.0063,0.768,A woman sitting at a table in front of a pile of luggage,A woman sitting at a table behind a pile of luggage.,000000351810.jpg
+both wrong,add_obj/1049,add_obj,418281,0,0,-0.013,-0.0057,-0.347,A cow standing in a grassy open field.,A cow and a dog standing in a grassy open field.,COCO_val2014_000000418281.jpg
+both wrong,replace_rel/1205,replace_rel,537153,0,0,-0.0003,-0.0006,-0.649,Two people sitting on a bench overlooking a body of water. ,Two people sitting on a bench facing away from a body of water.,000000537153.jpg
+both wrong,add_att/436,add_att,236784,0,0,-0.0126,-0.0045,-0.385,there are two large dogs sleeping on the couch,There are two large dogs sleeping on the leather couch.,COCO_val2014_000000236784.jpg
+both wrong,replace_rel/139,replace_rel,291490,0,0,-0.0185,-0.0309,-0.819,A kitten on a bad with its arm stretched out toward the camera,A kitten above a bed with its arm stretched out toward the camera.,000000291490.jpg
+both wrong,add_att/316,add_att,326082,0,0,-0.0043,-0.0126,-0.581,THERE IS A LIVING ROOM WITH A TABLE AND TV ,There is a living room with a table and a huge TV.,COCO_val2014_000000326082.jpg
+both wrong,swap_att/614,swap_att,188296,0,0,-0.0125,-0.0101,1.058,Two football players reach for the ball at the same time.,Same football players reach for the ball at two different times.,000000188296.jpg
+both wrong,add_obj/233,add_obj,63602,0,0,-0.0045,-0.018,0.158,A laptop computer sitting on top of a white desk.,A laptop computer sitting on top of a white desk with a lamp.,COCO_val2014_000000063602.jpg

@@ -1,0 +1,9 @@
+Method,Type,VG-Relation,VG-Attribution,COCO-Order,SugarCrepe
+Chance,by construction,50.0,50.0,20.0,50.0
+"Text only: GPT-2, mean log-probability",measured,82.8,72.4,96.7,49.8
+"Text only: GPT-2, total log-probability",measured,82.8,72.4,97.7,67.0
+Text only: grammar model (CoLA),measured,83.4,56.2,92.2,50.0
+"CLIP ViT-B/32 (OpenAI), image replaced by another image",measured,45.5,47.2,6.9,51.4
+"NegCLIP released, QuickGELU (as trained), image replaced by another image",measured,64.4,53.3,16.8,59.3
+CLIP ViT-B/32 (OpenAI),measured,59.9,63.2,47.4,73.1
+"NegCLIP released, QuickGELU (as trained)",measured,81.8,72.1,82.5,83.5

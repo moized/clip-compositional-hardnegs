@@ -1,0 +1,83 @@
+{
+  "run": {
+    "command": "scripts/05_eval_downstream.py --model openai --name clip --data-dir /kaggle/temp/data --coco-roots /kaggle/input --out-dir /kaggle/working/clip-compositional-hardnegs/results --zero-shot cifar10 cifar100",
+    "started_utc": "2026-11-14T17:53:11Z",
+    "environment": {
+      "python": "3.13.16",
+      "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+      "git_commit": "0ed6ded3775e5f16b5935e9215cc261dc9c5db04",
+      "git_modified": false,
+      "torch": "2.11.0+cu130",
+      "torchvision": "0.26.0+cu130",
+      "open_clip": "4.2.2",
+      "transformers": "5.20.2",
+      "spacy": "3.8.16",
+      "nltk": "3.9.1",
+      "numpy": "2.1.3",
+      "pandas": "2.3.3",
+      "clip_benchmark": "1.6.2",
+      "spacy_model": "3.8.0",
+      "cuda": true,
+      "gpu": "Tesla T4",
+      "gpu_count": 2
+    },
+    "args": {
+      "data_dir": "/kaggle/temp/data",
+      "coco_roots": [
+        "/kaggle/input"
+      ],
+      "device": null,
+      "batch_size": 256,
+      "workers": 4,
+      "model": "openai",
+      "name": "clip",
+      "gelu": false,
+      "zero_shot": [
+        "cifar10",
+        "cifar100"
+      ],
+      "imagenet_root": null,
+      "imagenet_limit": null,
+      "skip_retrieval": false,
+      "out_dir": "/kaggle/working/clip-compositional-hardnegs/results",
+      "amp": false,
+      "force": false,
+      "trust_checkpoint": false
+    },
+    "model_source": "openai",
+    "arch": "ViT-B-32-quickgelu",
+    "activation": "QuickGELU",
+    "device": "cuda"
+  },
+  "zero_shot": {
+    "cifar10": {
+      "acc1": 0.8983,
+      "acc5": 0.9961,
+      "n_images": 10000,
+      "n_classes": 10,
+      "n_templates": 18,
+      "subset": null,
+      "seconds": 124.7
+    },
+    "cifar100": {
+      "acc1": 0.642,
+      "acc5": 0.8873,
+      "n_images": 10000,
+      "n_classes": 100,
+      "n_templates": 18,
+      "subset": null,
+      "seconds": 141.5
+    }
+  },
+  "coco_retrieval": {
+    "text_r1": 0.502,
+    "text_r5": 0.7488,
+    "text_r10": 0.8316,
+    "image_r1": 0.3017592962814874,
+    "image_r5": 0.556657337065174,
+    "image_r10": 0.6675329868052778,
+    "n_images": 5000,
+    "n_texts": 25010,
+    "seconds": 53.8
+  }
+}

@@ -1,0 +1,5 @@
+Negative set,Pairs,Negatives per caption,"Text-only accuracy, GPT-2 (%)","Text-only accuracy, grammar model (%)",Median fluency gap,Flagged meaning-preserving (%)
+all candidate swaps (before selection),1820904,,95.8,,0.85,13.4
+"swap (NegCLIP-style, one per swap type)",89661,1.76,82.9,82.1,0.41,13.1
+swap_nosym,84068,1.65,83.0,82.7,0.43,0.0
+swap_fluent (fluency-matched),51078,1.00,50.0,67.6,-0.00,0.0

@@ -1,0 +1,83 @@
+{
+  "run": {
+    "command": "/kaggle/working/clip-compositional-hardnegs/scripts/05_eval_downstream.py --data-dir /kaggle/temp/data --batch-size 256 --workers 2 --coco-roots /kaggle/input --model /kaggle/temp/runs/none_seed0/model.pt --name none_seed0 --out-dir /kaggle/working/clip-compositional-hardnegs/results --zero-shot cifar10 cifar100",
+    "started_utc": "2026-11-14T20:29:35Z",
+    "environment": {
+      "python": "3.13.16",
+      "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+      "git_commit": "0ed6ded3775e5f16b5935e9215cc261dc9c5db04",
+      "git_modified": false,
+      "torch": "2.11.0+cu130",
+      "torchvision": "0.26.0+cu130",
+      "open_clip": "4.2.2",
+      "transformers": "5.20.2",
+      "spacy": "3.8.16",
+      "nltk": "3.9.1",
+      "numpy": "2.1.3",
+      "pandas": "2.3.3",
+      "clip_benchmark": "1.6.2",
+      "spacy_model": "3.8.0",
+      "cuda": true,
+      "gpu": "Tesla T4",
+      "gpu_count": 1
+    },
+    "args": {
+      "data_dir": "/kaggle/temp/data",
+      "coco_roots": [
+        "/kaggle/input"
+      ],
+      "device": null,
+      "batch_size": 256,
+      "workers": 2,
+      "model": "/kaggle/temp/runs/none_seed0/model.pt",
+      "name": "none_seed0",
+      "gelu": false,
+      "zero_shot": [
+        "cifar10",
+        "cifar100"
+      ],
+      "imagenet_root": null,
+      "imagenet_limit": null,
+      "skip_retrieval": false,
+      "out_dir": "/kaggle/working/clip-compositional-hardnegs/results",
+      "amp": false,
+      "force": false,
+      "trust_checkpoint": false
+    },
+    "model_source": "/kaggle/temp/runs/none_seed0/model.pt",
+    "arch": "ViT-B-32-quickgelu",
+    "activation": "QuickGELU",
+    "device": "cuda"
+  },
+  "zero_shot": {
+    "cifar10": {
+      "acc1": 0.9088,
+      "acc5": 0.9982,
+      "n_images": 10000,
+      "n_classes": 10,
+      "n_templates": 18,
+      "subset": null,
+      "seconds": 36.0
+    },
+    "cifar100": {
+      "acc1": 0.6782,
+      "acc5": 0.9068,
+      "n_images": 10000,
+      "n_classes": 100,
+      "n_templates": 18,
+      "subset": null,
+      "seconds": 40.6
+    }
+  },
+  "coco_retrieval": {
+    "text_r1": 0.598,
+    "text_r5": 0.8312,
+    "text_r10": 0.898,
+    "image_r1": 0.4278688524590164,
+    "image_r5": 0.6941223510595762,
+    "image_r10": 0.7927229108356657,
+    "n_images": 5000,
+    "n_texts": 25010,
+    "seconds": 71.1
+  }
+}

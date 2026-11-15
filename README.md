@@ -12,9 +12,11 @@ vision-language models behave like bags-of-words, and what to do about it?*, ICL
 ([paper](https://arxiv.org/abs/2210.01936),
 [code](https://github.com/mertyg/vision-language-models-are-bows)).
 
-**Status.** Code complete and tested (unit tests, a quick end-to-end test, and a rehearsal
-of the whole notebook on a small sample). The experiments are run with the Kaggle
-notebook; results are added to `results/` as they are produced (`results/tables/README.md`).
+**Status.** The full experiment ran on Kaggle (2 × T4) on 14–15 November 2026, with code
+commit `0ed6ded`, after `HYPOTHESES.md` was finalised. All 15 fine-tuning runs (5 conditions
+× 3 seeds) completed. The saved outputs are in `results/`; the outcome of every
+pre-registered prediction is in `results/tables/hypotheses.md`. The manual audit of the
+training negatives (`docs/AUDIT.md`) is still to be done.
 
 ## Research question
 
@@ -166,8 +168,9 @@ python scripts/06_make_tables.py
 python scripts/07_make_figures.py
 ```
 
-Approximate time on one Kaggle T4: downloads 20 min, reproduction and controls 40 min,
-training data 20 min, grid (15 runs) 4 to 5 hours. `run_grid.py` skips finished steps,
+Measured time of the full run on Kaggle (2 × T4): set-up, downloads and the reproduction
+45 min, text-only baselines 27 min, training data 87 min (GPT-2 scored 1.8 million
+candidate captions in 70 min), fine-tuning grid 5 h 30 min; 8 h 10 min in total. `run_grid.py` skips finished steps,
 so it can be stopped and started again. With the `time_budget_hours` of `configs/main.yaml`
 it also stops starting new runs when the next one would not finish in time, so the tables
 are still built from the finished runs before Kaggle's 12-hour session limit. A rehearsal of everything on a small sample:
@@ -189,7 +192,11 @@ python scripts/09_examples.py --benchmark sugarcrepe --a swap_fluent_seed0 --b n
 **Which results need a GPU.** The unit tests, the quick test, the tables and the figures
 run on a laptop. The reproduction and the controls run on a CPU in a few hours, or on a
 GPU in under an hour. The fine-tuning grid needs a GPU with at least 12 GB of memory
-(estimated at 15 to 25 minutes per run on a T4, evaluation included).
+(measured on a T4: 35 minutes per run without negative captions and 45 minutes with them,
+evaluation included; peak memory 4.4 GB with gradient checkpointing).
+
+The tables can be rebuilt from the saved files without a GPU: `python scripts/06_make_tables.py`
+reproduces the tables made on Kaggle byte for byte.
 
 ## What is recorded for reproducibility
 

@@ -1,0 +1,13 @@
+### Train/test overlap of the released NegCLIP checkpoint
+
+| Benchmark | Slice | Items | Share (%) | CLIP | NegCLIP | NegCLIP − CLIP |
+|---|---|---|---|---|---|---|
+| VG-Relation | image in NegCLIP's training file | 10103 | 42.2 | 50.8 [50.0, 51.6] | 59.0 [58.3, 59.8] | +8.3 [+7.3, +9.3] |
+| VG-Relation | image not in NegCLIP's training file | 13834 | 57.8 | 51.4 [50.7, 52.1] | 58.5 [57.9, 59.2] | +7.2 [+6.3, +8.0] |
+| VG-Attribution | image in NegCLIP's training file | 12329 | 42.9 | 61.6 [60.0, 62.9] | 71.7 [70.3, 73.0] | +10.1 [+8.9, +11.3] |
+| VG-Attribution | image not in NegCLIP's training file | 16419 | 57.1 | 61.2 [59.9, 62.3] | 72.4 [71.3, 73.6] | +11.3 [+10.2, +12.4] |
+| SugarCrepe | image in NegCLIP's training file | 5662 | 75.4 | 76.7 [75.5, 77.9] | 85.8 [84.7, 86.7] | +9.0 [+7.9, +10.2] |
+| SugarCrepe | image not in NegCLIP's training file | 1849 | 24.6 | 76.0 [74.0, 78.0] | 85.3 [83.7, 86.9] | +9.4 [+7.6, +11.2] |
+
+- Per-item accuracy (%) with a 95% cluster-bootstrap interval.
+- The released NegCLIP was fine-tuned on the COCO Karpathy training split, which contains images from COCO val2014; SugarCrepe's images and part of Visual Genome come from there.

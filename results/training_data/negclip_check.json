@@ -1,0 +1,9 @@
+{
+  "captions_sampled": 20000,
+  "released_negatives": 30172,
+  "reproduced_by_our_rules": 28739,
+  "reproduced_share": 0.9525056343629855,
+  "released_negatives_per_caption": 1.5086,
+  "our_negatives_per_caption_one_per_type": 1.5092,
+  "gpt2_blind_accuracy_on_released_negatives": 0.9481888722641706
+}

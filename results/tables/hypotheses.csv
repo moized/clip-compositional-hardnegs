@@ -1,0 +1,28 @@
+Hypothesis,Prediction,Benchmark,Measured A − B [95% CI],Per seed pair,Outcome
+H3 (primary),swap_fluent > none,SugarCrepe,"swap_fluent − none: +2.6 [+1.7, +3.5]","+2.3, +2.6, +3.0 (seeds [0, 1, 2])",supported
+H3b,swap_fluent > none,VG-Relation,"swap_fluent − none: +16.3 [+13.6, +19.0]","+16.4, +16.3, +16.3 (seeds [0, 1, 2])",supported
+H3b,swap_fluent > none,VG-Attribution,"swap_fluent − none: +5.6 [+4.7, +6.5]","+5.6, +5.9, +5.4 (seeds [0, 1, 2])",supported
+H3b,swap_fluent > none,COCO-Order,"swap_fluent − none: +35.7 [+35.1, +36.3]","+35.3, +36.2, +35.6 (seeds [0, 1, 2])",supported
+H3b,swap > swap_fluent,VG-Relation,"swap − swap_fluent: +4.2 [+2.6, +5.8]","+4.0, +4.0, +4.6 (seeds [0, 1, 2])",supported
+H3b,swap > swap_fluent,VG-Attribution,"swap − swap_fluent: +1.1 [+0.5, +1.6]","+1.1, +1.4, +0.8 (seeds [0, 1, 2])",supported
+H3b,swap > swap_fluent,COCO-Order,"swap − swap_fluent: +15.8 [+15.3, +16.3]","+15.8, +15.6, +16.0 (seeds [0, 1, 2])",supported
+H3c.1,swap > swap_fluent where GPT-2 is right,"VG-Relation, GPT-2 right","swap − swap_fluent: +2.3 [+1.9, +2.7]","+2.1, +2.2, +2.4 (seeds [0, 1, 2])",supported
+H3c.1,swap > swap_fluent where GPT-2 is right,"VG-Attribution, GPT-2 right","swap − swap_fluent: +2.8 [+2.5, +3.1]","+2.9, +2.8, +2.7 (seeds [0, 1, 2])",supported
+H3c.1,swap > swap_fluent where GPT-2 is right,"COCO-Order, GPT-2 right","swap − swap_fluent: +16.0 [+15.5, +16.5]","+16.1, +15.8, +16.2 (seeds [0, 1, 2])",supported
+H3c.2,swap_fluent − swap ≥ 0 where GPT-2 is wrong,"VG-Relation, GPT-2 wrong","swap_fluent − swap: -0.3 [-0.8, +0.2]","-0.3, -0.2, -0.4 (seeds [0, 1, 2])",supported
+H3c.2,swap_fluent − swap ≥ 0 where GPT-2 is wrong,"VG-Attribution, GPT-2 wrong","swap_fluent − swap: +0.5 [-0.1, +1.0]","+0.2, +0.5, +0.6 (seeds [0, 1, 2])",supported
+H3c.2,swap_fluent − swap ≥ 0 where GPT-2 is wrong,"COCO-Order, GPT-2 wrong","swap_fluent − swap: -9.5 [-11.7, -7.5]","-9.9, -8.9, -9.7 (seeds [0, 1, 2])",contradicted
+H3c.3,swap_fluent and swap do not differ,SugarCrepe,"swap_fluent − swap: -0.0 [-0.6, +0.6]","-0.1, -0.0, +0.1 (seeds [0, 1, 2])",supported
+H4a,random does not improve over none,VG-Relation,"random − none: +0.3 [-0.1, +0.8]","+0.2, +0.2, +0.5 (seeds [0, 1, 2])",supported
+H4a,random does not improve over none,VG-Attribution,"random − none: +0.0 [-0.2, +0.2]","-0.2, +0.3, -0.1 (seeds [0, 1, 2])",supported
+H4a,random does not improve over none,COCO-Order,"random − none: -0.2 [-0.3, -0.1]","+0.2, -0.5, -0.3 (seeds [0, 1, 2])",supported
+H4a,random does not improve over none,SugarCrepe,"random − none: -0.1 [-0.3, +0.1]","-0.1, -0.3, -0.0 (seeds [0, 1, 2])",supported
+H4b,swap_nosym is not worse than swap,VG-Relation,"swap_nosym − swap: -0.0 [-0.2, +0.1]","+0.0, -0.1, -0.0 (seeds [0, 1, 2])",supported
+H4b,swap_nosym is not worse than swap,VG-Attribution,"swap_nosym − swap: +0.2 [-0.0, +0.4]","+0.0, +0.3, +0.3 (seeds [0, 1, 2])",supported
+H4b,swap_nosym is not worse than swap,COCO-Order,"swap_nosym − swap: -0.1 [-0.2, +0.0]","-0.1, -0.0, -0.1 (seeds [0, 1, 2])",supported
+H4b,swap_nosym is not worse than swap,SugarCrepe,"swap_nosym − swap: -0.1 [-0.2, +0.1]","-0.1, -0.1, +0.0 (seeds [0, 1, 2])",supported
+H5,none within 1 point,CIFAR-100 zero-shot,none − CLIP: +3.3 (seed mean),"+3.6, +3.0, +3.2",contradicted
+H5,random within 1 point,CIFAR-100 zero-shot,random − CLIP: +3.3 (seed mean),"+3.5, +3.0, +3.4",contradicted
+H5,swap loses > 1 point,CIFAR-100 zero-shot,swap − CLIP: +3.2 (seed mean),"+3.6, +2.7, +3.4",contradicted
+H5,swap_nosym loses > 1 point,CIFAR-100 zero-shot,swap_nosym − CLIP: +3.2 (seed mean),"+3.5, +2.7, +3.3",contradicted
+H5,swap_fluent loses > 1 point,CIFAR-100 zero-shot,swap_fluent − CLIP: +3.5 (seed mean),"+3.9, +3.0, +3.6",contradicted

@@ -1,0 +1,31 @@
+category,item_id,group,image_id,a_correct,b_correct,a_margin,b_margin,gpt2_gap,true_caption,false_captions,image_file
+"A right, B wrong",vgr/6375,to the left of,2319740,1,0,0.0014,-0.0015,-0.105,the paper is to the left of the motorcycle,the motorcycle is to the left of the paper,2319740.jpg
+"A right, B wrong",vgr/18437,to the left of,2376953,1,0,0.0009,-0.0006,0.008,the head is to the left of the man,the man is to the left of the head,2376953.jpg
+"A right, B wrong",vgr/16084,to the left of,2369215,1,0,0.001,-0.0033,-0.145,the table is to the left of the chair,the chair is to the left of the table,2369215.jpg
+"A right, B wrong",vgr/14972,to the right of,2332363,1,0,0.0009,-0.0004,0.062,the laptop is to the right of the coffee cup,the coffee cup is to the right of the laptop,2332363.jpg
+"A right, B wrong",vgr/14724,to the right of,2387346,1,0,0.001,-0.0009,-0.037,the table is to the right of the bench,the bench is to the right of the table,2387346.jpg
+"A right, B wrong",vgr/3847,to the left of,2404079,1,0,0.0008,-0.002,-0.066,the fruit is to the left of the banana,the banana is to the left of the fruit,2404079.jpg
+"A right, B wrong",vgr/13207,to the left of,2333456,1,0,0.0006,-0.0002,0.447,the tree is to the left of the child,the child is to the left of the tree,2333456.jpg
+"A right, B wrong",vgr/21931,to the right of,2364109,1,0,0.0019,-0.0021,-0.003,the house is to the right of the tree,the tree is to the right of the house,2364109.jpg
+"A right, B wrong",vgr/11557,to the right of,930,1,0,0.0005,-0.0021,0.128,the hair is to the right of the umbrella,the umbrella is to the right of the hair,930.jpg
+"A right, B wrong",vgr/6803,to the left of,2396402,1,0,0.0008,-0.0032,-0.029,the chair is to the left of the fireplace,the fireplace is to the left of the chair,2396402.jpg
+"A wrong, B right",vgr/21232,sleeping on,2377385,0,1,-0.0066,0.0006,1.141,the dog is sleeping on the bed,the bed is sleeping on the dog,2377385.jpg
+"A wrong, B right",vgr/3374,to the right of,2361468,0,1,-0.0001,0.0017,0.036,the shirt is to the right of the sink,the sink is to the right of the shirt,2361468.jpg
+"A wrong, B right",vgr/15815,on,2323505,0,1,-0.0053,0.003,1.08,the ball is on the ground,the ground is on the ball,2323505.jpg
+"A wrong, B right",vgr/10741,to the left of,2358790,0,1,-0.0015,0.0005,0.07,the napkin is to the left of the coat,the coat is to the left of the napkin,2358790.jpg
+"A wrong, B right",vgr/15247,pulled by,2355417,0,1,-0.0003,0.0026,0.284,the suitcase is pulled by the child,the child is pulled by the suitcase,2355417.jpg
+"A wrong, B right",vgr/16174,behind,2336858,0,1,-0.0008,0.0007,0.126,the bush is behind the motorcycle,the motorcycle is behind the bush,2336858.jpg
+"A wrong, B right",vgr/17321,to the right of,2407005,0,1,-0.0007,0.0029,0.142,the puppy is to the right of the counter,the counter is to the right of the puppy,2407005.jpg
+"A wrong, B right",vgr/1683,holding,2401498,0,1,-0.0017,0.0011,1.193,the lady is holding the spatula,the spatula is holding the lady,2401498.jpg
+"A wrong, B right",vgr/18827,in front of,2390488,0,1,-0.001,0.0008,0.125,the girl is in front of the wall,the wall is in front of the girl,2390488.jpg
+"A wrong, B right",vgr/7814,to the right of,2390681,0,1,-0.0006,0.0008,0.345,the sidewalk is to the right of the river,the river is to the right of the sidewalk,2390681.jpg
+both wrong,vgr/3192,to the left of,713118,0,0,-0.0026,-0.0024,-0.034,the guy is to the left of the girl,the girl is to the left of the guy,713118.jpg
+both wrong,vgr/9952,to the left of,2350053,0,0,-0.0043,-0.004,-0.328,the bread is to the left of the sandwich,the sandwich is to the left of the bread,2350053.jpg
+both wrong,vgr/3892,under,2386254,0,0,-0.0035,-0.0007,0.309,the grass is under the bench,the bench is under the grass,2386254.jpg
+both wrong,vgr/8934,to the left of,2327666,0,0,-0.0079,-0.0066,0.086,the dress shirt is to the left of the desk,the desk is to the left of the dress shirt,2327666.jpg
+both wrong,vgr/17717,to the right of,2382724,0,0,-0.0115,-0.0136,-0.137,the shelf is to the right of the box,the box is to the right of the shelf,2382724.jpg
+both wrong,vgr/19485,to the left of,2327387,0,0,-0.0015,-0.0013,-0.042,the donuts is to the left of the hair,the hair is to the left of the donuts,2327387.jpg
+both wrong,vgr/12994,to the left of,2347518,0,0,-0.0268,-0.0257,0.707,the pipe is to the left of the television,the television is to the left of the pipe,2347518.jpg
+both wrong,vgr/4044,to the right of,2405032,0,0,-0.0021,-0.0007,0.278,the sign is to the right of the jacket,the jacket is to the right of the sign,2405032.jpg
+both wrong,vgr/2389,to the right of,2347637,0,0,-0.0032,-0.0051,0.071,the sidewalk is to the right of the shirt,the shirt is to the right of the sidewalk,2347637.jpg
+both wrong,vgr/4216,to the right of,2344727,0,0,-0.0014,-0.0014,0.146,the girl is to the right of the woman,the woman is to the right of the girl,2344727.jpg

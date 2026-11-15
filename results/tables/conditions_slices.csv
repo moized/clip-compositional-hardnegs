@@ -1,0 +1,9 @@
+Benchmark,Slice,Items,none,random,swap,swap_nosym,swap_fluent,swap − none,swap_fluent − none,swap_fluent − swap
+VG-Relation,GPT-2 right (text alone suffices),14073,52.9,53.0,60.4,60.5,58.2,"+7.5 [+6.6, +8.4]","+5.3 [+4.5, +6.1]","-2.3 [-2.7, -1.9]"
+VG-Relation,GPT-2 wrong (text alone misleads),9864,52.3,52.4,55.3,55.2,55.0,"+3.0 [+2.0, +3.9]","+2.7 [+1.9, +3.5]","-0.3 [-0.8, +0.2]"
+VG-Attribution,GPT-2 right (text alone suffices),21477,63.7,63.6,74.2,74.1,71.4,"+10.5 [+9.8, +11.2]","+7.7 [+7.2, +8.2]","-2.8 [-3.1, -2.5]"
+VG-Attribution,GPT-2 wrong (text alone misleads),7271,59.8,59.8,62.7,62.9,63.2,"+2.9 [+2.0, +3.8]","+3.4 [+2.6, +4.2]","+0.5 [-0.1, +1.0]"
+COCO-Order,GPT-2 right (text alone suffices),24165,34.1,33.9,86.2,86.1,70.1,"+52.0 [+51.3, +52.7]","+36.0 [+35.4, +36.6]","-16.0 [-16.5, -15.5]"
+COCO-Order,GPT-2 wrong (text alone misleads),845,29.7,29.4,66.8,66.4,57.3,"+37.1 [+33.9, +40.5]","+27.6 [+24.5, +30.7]","-9.5 [-11.7, -7.5]"
+SugarCrepe,GPT-2 right (text alone suffices),3275,81.0,80.8,84.6,84.6,83.2,"+3.6 [+2.7, +4.7]","+2.2 [+1.4, +3.0]","-1.5 [-2.1, -0.8]"
+SugarCrepe,GPT-2 wrong (text alone misleads),4236,85.0,85.0,84.7,84.6,85.4,"-0.2 [-0.9, +0.5]","+0.5 [-0.1, +1.0]","+0.7 [+0.2, +1.2]"

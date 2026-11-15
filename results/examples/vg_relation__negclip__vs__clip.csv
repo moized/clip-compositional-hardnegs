@@ -1,0 +1,31 @@
+category,item_id,group,image_id,a_correct,b_correct,a_margin,b_margin,gpt2_gap,true_caption,false_captions,image_file
+"A right, B wrong",vgr/17626,to the left of,2416978,1,0,0.0024,-0.0007,0.071,the donut is to the left of the plate,the plate is to the left of the donut,2416978.jpg
+"A right, B wrong",vgr/7982,growing on,2356494,1,0,0.0047,-0.012,1.332,the grass is growing on the hill,the hill is growing on the grass,2356494.jpg
+"A right, B wrong",vgr/4577,to the right of,2378297,1,0,0.0086,-0.0157,-0.015,the roof is to the right of the tree,the tree is to the right of the roof,2378297.jpg
+"A right, B wrong",vgr/16390,to the left of,2356670,1,0,0.0155,-0.0025,0.52,the seat is to the left of the road,the road is to the left of the seat,2356670.jpg
+"A right, B wrong",vgr/1021,to the right of,2335027,1,0,0.0043,-0.0025,0.01,the ground is to the right of the blanket,the blanket is to the right of the ground,2335027.jpg
+"A right, B wrong",vgr/17906,to the left of,2351795,1,0,0.0113,-0.0042,0.345,the cake is to the left of the fork,the fork is to the left of the cake,2351795.jpg
+"A right, B wrong",vgr/23220,to the left of,2317654,1,0,0.0021,-0.0177,0.112,the wing is to the left of the bread,the bread is to the left of the wing,2317654.jpg
+"A right, B wrong",vgr/10904,to the right of,2365435,1,0,0.0118,-0.0098,-0.144,the woman is to the right of the couch,the couch is to the right of the woman,2365435.jpg
+"A right, B wrong",vgr/15560,to the right of,2346403,1,0,0.0225,-0.0014,0.174,the woman is to the right of the bananas,the bananas is to the right of the woman,2346403.jpg
+"A right, B wrong",vgr/11219,behind,1160254,1,0,0.0095,-0.0019,-0.094,the man is behind the table,the table is behind the man,1160254.jpg
+"A wrong, B right",vgr/18290,on,2405545,0,1,-0.0403,0.0036,-0.371,the trunk is on the elephant,the elephant is on the trunk,2405545.jpg
+"A wrong, B right",vgr/1410,to the left of,2417560,0,1,-0.0115,0.0121,0.097,the boat is to the left of the boy,the boy is to the left of the boat,2417560.jpg
+"A wrong, B right",vgr/14000,behind,2382882,0,1,-0.0133,0.0029,0.238,the tree is behind the stone,the stone is behind the tree,2382882.jpg
+"A wrong, B right",vgr/5745,standing behind,2400560,0,1,-0.003,0.0061,-0.037,the man is standing behind the woman,the woman is standing behind the man,2400560.jpg
+"A wrong, B right",vgr/20603,to the right of,2398501,0,1,-0.0081,0.0046,-0.275,the laptops is to the right of the woman,the woman is to the right of the laptops,2398501.jpg
+"A wrong, B right",vgr/19691,to the left of,2391806,0,1,-0.0069,0.0004,-0.083,the vegetable is to the left of the broccoli,the broccoli is to the left of the vegetable,2391806.jpg
+"A wrong, B right",vgr/8293,to the right of,2324564,0,1,-0.0166,0.0078,0.269,the wall is to the right of the woman,the woman is to the right of the wall,2324564.jpg
+"A wrong, B right",vgr/14694,above,498190,0,1,-0.0093,0.0035,-0.59,the sky is above the airplane,the airplane is above the sky,498190.jpg
+"A wrong, B right",vgr/22278,to the right of,2346515,0,1,-0.0031,0.0071,0.1,the building is to the right of the man,the man is to the right of the building,2346515.jpg
+"A wrong, B right",vgr/12117,behind,2358186,0,1,-0.0144,0.0107,0.086,the box is behind the woman,the woman is behind the box,2358186.jpg
+both wrong,vgr/21985,behind,2343586,0,0,-0.0177,-0.0065,-0.114,the mountain is behind the train,the train is behind the mountain,2343586.jpg
+both wrong,vgr/4416,to the left of,1159745,0,0,-0.0129,-0.0078,0.244,the fence is to the left of the man,the man is to the left of the fence,1159745.jpg
+both wrong,vgr/19144,contain,2413251,0,0,-0.0171,-0.013,0.42,the box is contain the pizza,the pizza is contain the box,2413251.jpg
+both wrong,vgr/9344,to the right of,2319662,0,0,-0.0066,-0.0038,-0.331,the hills is to the right of the hillside,the hillside is to the right of the hills,2319662.jpg
+both wrong,vgr/12196,to the left of,2337972,0,0,-0.0065,-0.0045,-0.193,the arm is to the left of the t-shirt,the t-shirt is to the left of the arm,2337972.jpg
+both wrong,vgr/4777,to the right of,2377712,0,0,-0.0065,-0.0049,0.293,the bed is to the right of the book,the book is to the right of the bed,2377712.jpg
+both wrong,vgr/16157,to the left of,2381221,0,0,-0.0112,-0.0093,0.147,the food is to the left of the paper,the paper is to the left of the food,2381221.jpg
+both wrong,vgr/11094,near,2346063,0,0,-0.0013,-0.0037,-0.384,the pavement is near the grass,the grass is near the pavement,2346063.jpg
+both wrong,vgr/5161,to the right of,2355239,0,0,-0.0083,-0.011,0.112,the shirt is to the right of the crosswalk,the crosswalk is to the right of the shirt,2355239.jpg
+both wrong,vgr/7333,to the right of,2380665,0,0,-0.0263,-0.0057,0.213,the tree is to the right of the man,the man is to the right of the tree,2380665.jpg

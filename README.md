@@ -15,8 +15,9 @@ vision-language models behave like bags-of-words, and what to do about it?*, ICL
 **Status.** The full experiment ran on Kaggle (2 × T4) on 14–15 November 2026, with code
 commit `0ed6ded`, after `HYPOTHESES.md` was finalised. All 15 fine-tuning runs (5 conditions
 × 3 seeds) completed. The saved outputs are in `results/`; the outcome of every
-pre-registered prediction is in `results/tables/hypotheses.md`. The manual audit of the
-training negatives (`docs/AUDIT.md`) is still to be done.
+pre-registered prediction is in `results/tables/hypotheses.md`. The audit of the training
+negatives (`results/tables/audit.md`) was labelled by the AI assistant at the author's request,
+blind to the negative set (see `HYPOTHESES.md`, changes after finalising).
 
 ## Research question
 

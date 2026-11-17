@@ -190,4 +190,5 @@ and recorded below with the date and the reason.
 
 | Date | Change | Reason (validation evidence) |
 |---|---|---|
-| | | |
+| 2026-11-17 | Analysis plan, item 6: the 300 audit pairs were labelled by the AI assistant (Claude), not by the author. The labels were made blind to the negative set, but after the fine-tuning results were known. | The author asked for it, for lack of time. No setting or model result changes; the report states who labelled. |
+| 2026-11-17 | Analysis plan, item 7: the swap-type mix was described the wrong way round. The fluency-matched set has more single-noun swaps (67.9% vs 53.5%) and fewer adjective (12.9% vs 15.0%) and noun-phrase swaps (9.3% vs 17.5%), from `results/training_data/stats.json`. | A description error found while writing the report; no prediction changes. |

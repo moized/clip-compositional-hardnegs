@@ -45,6 +45,8 @@ def wilson(successes: int, n: int, z: float = 1.96) -> tuple:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--results-dir", default="results")
+    parser.add_argument("--labelled-by", default="by hand",
+                        help='Who labelled the pairs, for the table note (e.g. "by the author").')
     args = parser.parse_args()
     folder = os.path.join(args.results_dir, "training_data")
     sample = pd.read_csv(os.path.join(folder, "audit_sample.csv"), dtype=str, keep_default_na=False)
@@ -67,8 +69,8 @@ def main() -> None:
             row[f"{label}: {description} (%)"] = (f"{100 * count / len(part):.0f} [{100 * low:.0f}, {100 * high:.0f}]"
                                                  if len(part) else "")
         rows.append(row)
-    table = Table("audit", "Manual audit of the training negatives", pd.DataFrame(rows), [
-        f"{len(done)} of {len(merged)} sampled pairs labelled by hand, blind to the negative set.",
+    table = Table("audit", "Audit of the training negatives", pd.DataFrame(rows), [
+        f"{len(done)} of {len(merged)} sampled pairs labelled {args.labelled_by}, blind to the negative set.",
         "Share of each label in %, with a 95% Wilson interval.",
     ])
     out_dir = ensure_dir(os.path.join(args.results_dir, "tables"))

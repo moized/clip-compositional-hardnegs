@@ -224,22 +224,24 @@ from the raw files, the two losses, the fluency matching and the statistics.
 
 ## AI assistance
 
-> Draft. Edit this section until it describes what was actually done, as the course
-> brief requires (tools used and the specific contribution of each).
+The brief requires the tools used and the contribution of each. The same statement is in
+section 9 of the report.
 
-- **Claude Code (Anthropic's coding assistant), November 2026.**
-  - Drafted the literature comparison matrix from full readings of the five papers.
-    I checked the entries against the PDFs.
-  - Wrote the code in this repository under my direction: the library in
-    `src/compbind/`, the scripts, the tests, the Kaggle notebook and the documentation.
-  - Ran a development check on CPU that compared the evaluation code with published
-    numbers (`docs/EXPECTED_VALUES.md`). The results in `results/` and in the report
-    come from my own runs on Kaggle.
-  - Drafted `HYPOTHESES.md`; I edited and finalised it before the fine-tuning runs.
-- **Gemini and ChatGPT** were asked for alternative topic and paper suggestions at the
-  planning stage. _(State here what, if anything, was kept from them.)_
-- I ran the experiments, did the manual audit of the negatives, wrote the report and
-  can explain and modify every part of the code.
+- **Claude (Anthropic), through Claude Code, 8 to 17 November 2026:**
+  - proposed the topic and the five papers in response to my criteria, read the papers in full,
+    drafted the comparison matrix and transcribed the published reference numbers;
+  - proposed the experimental design (conditions, controls, statistics, decision rules) and wrote
+    `HYPOTHESES.md` from my answers to a questionnaire;
+  - wrote all code in this repository (library, scripts, tests, Kaggle notebook, documentation) and
+    ran development checks on a CPU (`docs/EXPECTED_VALUES.md`);
+  - built the tables and figures, labelled the 300 audit pairs at my request (blind to the
+    negative set, after the model results were known), and drafted the report.
+- **Gemini and ChatGPT** received the same neutral description at the planning stage. Gemini's
+  suggestions overlapped with the final paper set (TripletCLIP, with a wrong arXiv number that was
+  corrected); ChatGPT proposed a video-based project, which was not adopted.
+- **My part:** I chose and registered the topic and papers, fixed the predictions and the primary
+  test before the full run, ran the rehearsals and the full experiment on Kaggle, and reviewed the
+  report. I am responsible for every claim.
 
 ## References
 

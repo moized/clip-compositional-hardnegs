@@ -1,4 +1,4 @@
-# A rehearsal of the whole pipeline on a small sample (minutes instead of hours).
+# A quick check of the whole pipeline on a small sample (minutes instead of hours).
 # Its numbers mean nothing; write them to a separate results folder.
 
 training_data:
@@ -14,7 +14,7 @@ grid:
   seeds: [0]
   epochs: 2
   max_steps: 12
-  batch_size: 256         # the real batch size, so the rehearsal also checks that it fits in GPU memory
+  batch_size: 256         # the real batch size, so the quick check also checks that it fits in GPU memory
   lr: 1.0e-6
   warmup: 5
   limit: 500              # evaluate on 500 items per benchmark

@@ -6,5 +6,5 @@
 | swap_nosym | 100 | 47 [38, 57] | 10 [6, 17] | 43 [34, 53] |
 | swap_fluent | 100 | 61 [51, 70] | 19 [13, 28] | 20 [13, 29] |
 
-- 300 of 300 sampled pairs labelled by the AI assistant (Claude) at the author's request, after the model results were known, blind to the negative set.
+- 300 of 300 sampled pairs labelled by the AI assistant (Claude), after the model results were known, blind to the negative set.
 - Share of each label in %, with a 95% Wilson interval.

@@ -2,13 +2,15 @@
 
 What this project does differently from the papers it builds on, and why. "ARO" is
 Yuksekgonul et al. (ICLR 2023); the released code is
-https://github.com/mertyg/vision-language-models-are-bows at commit `81fdd20`.
+https://github.com/mertyg/vision-language-models-are-bows at commit `81fdd20`. Section 4 of
+the report summarises the differences that affect the conclusions, with its own numbering;
+this file lists all of them.
 
 ## A. Reproduction of the evaluation (released checkpoints)
 
 | # | Original | Here | Reason / expected effect |
 |---|---|---|---|
-| A1 | ARO's evaluation scripts | Re-implemented in `src/compbind/` from the released code: same test files, same candidate order, same tie rule (first candidate wins), same metric definitions | One code path for all benchmarks and per-item outputs. Checked against the published numbers (`docs/EXPECTED_VALUES.md`) |
+| A1 | ARO's evaluation scripts | Re-implemented in `src/compbind/` from the released code: same test files, same candidate order, same tie rule (first candidate wins), same metric definitions | One code path for all benchmarks and per-item outputs. Checked against the published numbers (`results/tables/reproduction_*.md`) |
 | A2 | The released code builds NegCLIP with `open_clip.create_model_and_transforms("ViT-B-32", pretrained=<file>)`, i.e. with the GELU activation | Evaluated twice, on the benchmarks and on the downstream tasks: with QuickGELU (the activation NegCLIP was trained with) and with GELU | The two give different numbers (also for zero-shot accuracy and retrieval); both are reported, and which one matches the published values is a finding of the reproduction |
 | A3 | Library versions of 2022 | open_clip 4.2.2, PyTorch 2.x, full precision (float32) | Small numerical differences only |
 | A4 | COCO-Order: shuffles drawn from the global random generators, seeded once per run (default seed 1) | Generators owned by the shuffling object, so a seed fixes the captions whatever else runs; seeds 0, 1, 2 reported; spaCy 3.8 and NLTK 3.10 | The shuffled captions are not the authors' exact ones; the paper reports ±0.001 over 3 seeds for CLIP |
@@ -30,7 +32,7 @@ https://github.com/mertyg/vision-language-models-are-bows at commit `81fdd20`.
 | B6 | One run, fixed seed | Three seeds per condition | Needed to separate effects from seed noise |
 | B7 | OpenCLIP fork of 2022 | OpenCLIP 4.2.2 with the same optimiser settings (AdamW, betas 0.9/0.98, eps 1e-6, weight decay 0.2 on weight matrices, cosine schedule, 50 warm-up steps, mixed precision, temperature capped at 100) | Small numerical differences only |
 | B8 | Every image is decoded at full size at every step | Training reads reduced JPEG copies (shorter side 256 pixels, quality 95) made once by step 03; the usual random crop to 224 pixels is then applied. `--full-size-images` restores the original behaviour | Decoding full-size images limits the speed on Kaggle's four CPU cores. The model's input is 224 pixels and all conditions use the same copies, so the comparison is not affected |
-| B9 | The released command does not use gradient checkpointing | Gradient checkpointing is on | Memory only: at batch 64 the training used 5.3 to 6.7 GB, so a batch of 256 images and 512 captions would need about 19 GB, more than the 15 GB of a T4. Loss and gradients are unchanged (checked on CPU: identical to the last digit); each step takes somewhat longer |
+| B9 | The released command does not use gradient checkpointing | Gradient checkpointing is on | Memory only: it makes a batch of 256 images and 512 captions fit on one T4 (16 GB). Loss and gradients are unchanged (checked numerically); each step takes somewhat longer |
 
 ## C. What is new here (not in any of the five papers)
 

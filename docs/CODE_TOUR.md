@@ -1,8 +1,7 @@
 # Code tour
 
-A map of the code, written so that you can explain, defend and change it. Read the
-files in the order below; each has a docstring at the top that says what it does
-and where the idea comes from.
+A map of the code. Each module has a docstring at the top that says what it does and
+where the idea comes from; section 2 lists the modules in reading order.
 
 ## 1. The pipeline in one picture
 
@@ -97,7 +96,7 @@ columns: nothing (`none`), another image's caption (`random`), a NegCLIP-style s
    pairs. This is SugarCrepe's adversarial refinement, applied to training data and
    with one language model.
 
-Limit to state openly: the balance holds for GPT-2 by construction. The grammar model,
+Limitation: the balance holds for GPT-2 by construction. The grammar model,
 which was not used in the selection, still does better than chance on the selected
 pairs (see `results/training_data/stats.json`), so the cue is reduced, not removed.
 
@@ -113,36 +112,7 @@ pairs (see `results/training_data/stats.json`), so the cue is reduced, not remov
   `leak_report` counts the overlap with every test set and the builder stops if any is
   not zero. Training and validation images are different images.
 
-## 7. Questions you should be able to answer
-
-| Question | Where to look |
-|---|---|
-| What exactly is the NegCLIP loss, and why is there no column loss for negatives? | `losses.py`, section 4 above |
-| Why two numbers for NegCLIP (QuickGELU and GELU)? | docstring of `models.py`, `docs/DEVIATIONS.md` A2 |
-| Why macro accuracy, and what changes with per-item accuracy? | `aro.py` docstring, `benchmarks.summarize` |
-| How is a tie between two captions handled? | `scoring.py` docstring |
-| What does the shuffled-image control show that the text-only baseline does not? | The text-only baseline uses an outside language model; the shuffled-image control asks whether *the evaluated model itself* prefers the right caption without the right image |
-| Why resample images and not items in the bootstrap? | `stats.py` docstring |
-| How do you know no test image was used for training? | section 6 above, `results/training_data/stats.json` → `leak_checks` |
-| Why is `random` a necessary control? | Conditions with negatives encode twice as many texts per step; `random` has the same amount but no hard negative |
-| Why can't you claim the fluency cue is fully removed? | section 5, last paragraph |
-| What did you not reproduce? | `docs/DEVIATIONS.md` (no hard negative images, no Flickr30k-Order, no Vera) |
-
-## 8. Changes you could be asked to make
-
-- **Add a training condition.** Add its name to `CONDITIONS` in `src/compbind/__init__.py`,
-  give `PairDataset` in `training.py` a rule for its negative, and add a label in
-  `report.CONDITION_LABELS` and a style in `figures.STYLE`.
-- **Use another fluency model.** `Gpt2Scorer(model_name=...)` accepts any causal language
-  model on the Hugging Face hub (for example `distilgpt2` or `gpt2-medium`).
-- **Balance on two text-only models.** In `refine.build_matched_pairs`, bin on the sign
-  of a second gap as well, the way SugarCrepe balances on Vera and the grammar model.
-- **Add a benchmark.** Write a loader that returns `Item`s, register it in
-  `benchmarks.get_items` and give `benchmarks.summarize` its headline metric.
-- **Change a hyperparameter.** Edit `configs/main.yaml`; record the change and the
-  validation evidence in `HYPOTHESES.md`.
-
-## 9. Tests
+## 7. Tests
 
 `pytest tests` runs in a few seconds and needs no GPU or download (the swap tests need
 the spaCy model). Each test file checks one module against values that can be computed

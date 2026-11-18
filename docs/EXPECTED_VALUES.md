@@ -1,11 +1,11 @@
-# Expected values (development check)
+# Development check (before the predictions were fixed)
 
-These numbers come from a **development run made by the AI assistant on a CPU while the code was written**
-(float32, PyTorch 2.15, open_clip 4.2.2, spaCy 3.8.18; COCO-Order with shuffle seed 0 only).
-They are here so that a new run can be checked: a run on a GPU should agree to within
-about 0.1 points (COCO-Order and anything that depends on the spaCy version may move a
-little more). **They are not the results of the project**; the reported results are the
-files under `results/`, produced by the Kaggle notebook.
+These numbers come from a **development run on a CPU, made by the AI assistant while the code
+was written** (float32, PyTorch 2.15, open_clip 4.2.2, spaCy 3.8.18; COCO-Order with shuffle
+seed 0 only), before the predictions in `HYPOTHESES.md` were fixed. `HYPOTHESES.md` refers to
+this file as what was known at that time: it is why H1 and H2 are listed there as checks with
+a known outcome, not as predictions. **They are not the results of the project**; the reported
+results are the files under `results/`, produced by the Kaggle notebook.
 
 All values are percentages. "Shuffled image" means the same captions scored against a
 different image.

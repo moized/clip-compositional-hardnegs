@@ -12,12 +12,34 @@ vision-language models behave like bags-of-words, and what to do about it?*, ICL
 ([paper](https://arxiv.org/abs/2210.01936),
 [code](https://github.com/mertyg/vision-language-models-are-bows)).
 
-**Status.** The full experiment ran on Kaggle (2 × T4) on 14–15 November 2026, with code
-commit `0ed6ded`, after `HYPOTHESES.md` was finalised. All 15 fine-tuning runs (5 conditions
-× 3 seeds) completed. The saved outputs are in `results/`; the outcome of every
-pre-registered prediction is in `results/tables/hypotheses.md`. The audit of the training
-negatives (`results/tables/audit.md`) was labelled by the AI assistant at the author's request,
-blind to the negative set (see `HYPOTHESES.md`, changes after finalising).
+## Main results
+
+| Model | VG-Relation | VG-Attribution | COCO-Order | SugarCrepe | CIFAR-100 zero-shot |
+|---|---|---|---|---|---|
+| CLIP ViT-B/32, pretrained | 59.9 | 63.2 | 47.2 | 73.1 | 64.2 |
+| NegCLIP, released checkpoint (QuickGELU) | 81.8 | 72.1 | 82.5 | 83.5 | 62.9 |
+| `none`: fine-tuning only (CLIP-FT control) | 59.5 | 64.5 | 34.0 | 79.2 | 67.5 |
+| `random`: a random caption as negative (control) | 59.8 | 64.5 | 33.8 | 79.1 | 67.5 |
+| `swap`: NegCLIP-style swapped captions | 80.1 | 71.2 | 85.5 | 81.8 | 67.4 |
+| `swap_nosym`: without meaning-preserving swaps (ablation) | 80.1 | 71.4 | 85.4 | 81.8 | 67.4 |
+| `swap_fluent`: fluency-matched swaps (the improvement) | 75.9 | 70.1 | 69.7 | 81.8 | 67.7 |
+
+Accuracy in %: macro accuracy on the VG tasks, COCO-Order with shuffle seed 0, SugarCrepe as
+the mean of its 7 subsets. Fine-tuned rows are means over three seeds (standard deviations at
+most 0.5 points); all five conditions use the same images, captions, steps and optimiser.
+
+- **Reproduction.** The released NegCLIP matches all ten published ARO and SugarCrepe values
+  within 0.9 points only when it is built with GELU, although it was trained with QuickGELU.
+- **Mechanism.** On the Visual Genome tasks, NegCLIP-style training gains 2.5 to 3.6 times
+  more on items that GPT-2 solves without the image than on items where the text misleads.
+- **Improvement.** Fluency-matched negatives improve SugarCrepe over fine-tuning alone by
+  2.6 points [95% CI 1.7, 3.5] in every seed, the pre-registered primary test, as much as
+  NegCLIP-style swaps. They are lower on the ARO tasks, mostly on items the text alone solves.
+- **Cost.** No condition loses zero-shot accuracy, against the prediction.
+
+Every pre-registered prediction and its outcome: [results/tables/hypotheses.md](results/tables/hypotheses.md).
+All tables: [results/tables/README.md](results/tables/README.md). The results were produced
+by commit `0ed6ded` on Kaggle (2 × T4).
 
 ## Research question
 
@@ -45,7 +67,7 @@ committed before the fine-tuning runs.
 | Training data | Leak-free COCO pairs with three kinds of negatives: NegCLIP-style swaps, swaps without meaning-preserving ones, fluency-matched swaps | `03_build_training_data.py` |
 | Fine-tuning | Five conditions × three seeds, same images, captions, steps and optimiser: `none` (CLIP-FT control), `random` (control for extra texts), `swap` (NegCLIP-style), `swap_nosym` (ablation), `swap_fluent` (the improvement) | `run_grid.py` → `04_train.py` |
 | Cost | Zero-shot CIFAR-10/100 (ImageNet optional), COCO retrieval, training time, peak GPU memory | `05_eval_downstream.py` |
-| Report assets | Every table and figure, regenerated from saved files | `06_make_tables.py`, `07_make_figures.py` |
+| Tables and figures | Every table and figure, regenerated from the saved files | `06_make_tables.py`, `07_make_figures.py` |
 
 ## Repository layout
 
@@ -55,9 +77,8 @@ src/compbind/ the library: benchmarks, scoring, negatives, fluency matching, los
 scripts/      numbered command-line steps, run_grid.py, quick_test.py
 notebooks/    kaggle_run.ipynb: the whole pipeline on Kaggle
 tests/        unit tests (pytest)
-docs/         CODE_TOUR.md, DEVIATIONS.md, EXPECTED_VALUES.md, AUDIT.md
+docs/         CODE_TOUR.md, DEVIATIONS.md, AUDIT.md, EXPECTED_VALUES.md
 results/      saved outputs: summaries, per-item results, tables, figures (small files only)
-report/       report sources
 ```
 
 No dataset, image or model checkpoint is stored in this repository.
@@ -121,7 +142,7 @@ link and the place to put the file by hand. Licences: [THIRD_PARTY_NOTICES.md](T
 
 The easiest way is `notebooks/kaggle_run.ipynb`: in Kaggle choose *Create → New Notebook →
 File → Import Notebook* and upload the file, switch on a GPU (T4) and Internet, and run
-it first with `QUICK = True` (a rehearsal on a small sample), then with `QUICK = False`.
+it first with `QUICK = True` (every step on a small sample), then with `QUICK = False`.
 The notebook clones this repository and calls the scripts below. The same steps as
 commands, run from the repository root:
 
@@ -169,35 +190,30 @@ python scripts/06_make_tables.py
 python scripts/07_make_figures.py
 ```
 
-Measured time of the full run on Kaggle (2 × T4): set-up, downloads and the reproduction
-45 min, text-only baselines 27 min, training data 87 min (GPT-2 scored 1.8 million
-candidate captions in 70 min), fine-tuning grid 5 h 30 min; 8 h 10 min in total. `run_grid.py` skips finished steps,
-so it can be stopped and started again. With the `time_budget_hours` of `configs/main.yaml`
-it also stops starting new runs when the next one would not finish in time, so the tables
-are still built from the finished runs before Kaggle's 12-hour session limit. A rehearsal of everything on a small sample:
-`--config configs/quick.yaml` with `--results-dir results_quick`.
+The full run took 8 h 10 min on Kaggle (2 × T4): 44 min for set-up and the released models,
+27 min for the text-only baselines, 87 min for the training data (70 min of it GPT-2 scoring
+of 2.2 million texts) and 5 h 31 min for the fine-tuning grid. `run_grid.py` skips finished
+steps, so it can be stopped and started again, and with `time_budget_hours` in
+`configs/main.yaml` it starts no run that would end after the session limit. The same
+pipeline on a small sample: `--config configs/quick.yaml` with `--results-dir results_quick`.
 
-After the manual audit of the negatives ([docs/AUDIT.md](docs/AUDIT.md)):
+The audit table ([docs/AUDIT.md](docs/AUDIT.md)) and the examples for the failure analysis
+(drawn at random, favourable and unfavourable cases alike) are made by:
 
 ```bash
 python scripts/08_audit_summary.py
 ```
-
-Random examples on which two models disagree, for the failure analysis (favourable and
-unfavourable cases are drawn the same way):
 
 ```bash
 python scripts/09_examples.py --benchmark sugarcrepe --a swap_fluent_seed0 --b none_seed0
 ```
 
 **Which results need a GPU.** The unit tests, the quick test, the tables and the figures
-run on a laptop. The reproduction and the controls run on a CPU in a few hours, or on a
-GPU in under an hour. The fine-tuning grid needs a GPU with at least 12 GB of memory
-(measured on a T4: 35 minutes per run without negative captions and 45 minutes with them,
-evaluation included; peak memory 4.4 GB with gradient checkpointing).
-
-The tables can be rebuilt from the saved files without a GPU: `python scripts/06_make_tables.py`
-reproduces the tables made on Kaggle byte for byte.
+run on a laptop: `python scripts/06_make_tables.py` rebuilds the saved tables exactly from
+the files in `results/`. The reproduction and the controls run on a CPU in a few hours, or
+on a GPU in under an hour. The fine-tuning grid needs a GPU (measured on a T4: 35 minutes
+per run without negative captions and 44 minutes with them, evaluation included; peak
+memory 4.4 GB with gradient checkpointing).
 
 ## What is recorded for reproducibility
 
@@ -214,34 +230,31 @@ reproduces the tables made on Kaggle byte for byte.
 | Deviations from the original | [docs/DEVIATIONS.md](docs/DEVIATIONS.md) |
 
 Published and measured numbers never share a column: see `results/tables/reproduction_*.md`.
-Values from a development run on CPU, for checking a new run, are in
-[docs/EXPECTED_VALUES.md](docs/EXPECTED_VALUES.md).
 
-## Understanding the code
+## Documentation
 
-[docs/CODE_TOUR.md](docs/CODE_TOUR.md) explains each module, how one number is produced
-from the raw files, the two losses, the fluency matching and the statistics.
+- [docs/CODE_TOUR.md](docs/CODE_TOUR.md): each module, how one number is produced from the
+  raw files, the two losses, the fluency matching and the statistics.
+- [docs/DEVIATIONS.md](docs/DEVIATIONS.md): every difference from the original setup and its effect.
+- [docs/AUDIT.md](docs/AUDIT.md): how the training negatives were audited.
+- [docs/EXPECTED_VALUES.md](docs/EXPECTED_VALUES.md): the development check that
+  `HYPOTHESES.md` refers to as what was known before the predictions were fixed.
 
 ## AI assistance
 
-The brief requires the tools used and the contribution of each. The same statement is in
-section 9 of the report.
+Disclosed as the brief requires; the same statement is in section 9 of the report.
 
-- **Claude (Anthropic), through Claude Code, 8 to 17 November 2026:**
-  - proposed the topic and the five papers in response to my criteria, read the papers in full,
-    drafted the comparison matrix and transcribed the published reference numbers;
-  - proposed the experimental design (conditions, controls, statistics, decision rules) and wrote
-    `HYPOTHESES.md` from my answers to a questionnaire;
-  - wrote all code in this repository (library, scripts, tests, Kaggle notebook, documentation) and
-    ran development checks on a CPU (`docs/EXPECTED_VALUES.md`);
-  - built the tables and figures, labelled the 300 audit pairs at my request (blind to the
-    negative set, after the model results were known), and drafted the report.
-- **Gemini and ChatGPT** received the same neutral description at the planning stage. Gemini's
-  suggestions overlapped with the final paper set (TripletCLIP, with a wrong arXiv number that was
-  corrected); ChatGPT proposed a video-based project, which was not adopted.
-- **My part:** I chose and registered the topic and papers, fixed the predictions and the primary
-  test before the full run, ran the rehearsals and the full experiment on Kaggle, and reviewed the
-  report. I am responsible for every claim.
+- **Claude (Anthropic), through Claude Code:** proposed the topic and the five papers from my
+  criteria, drafted the comparison matrix and transcribed the published numbers; proposed the
+  training conditions, controls, statistics and decision rules, and worded the pre-registered
+  predictions (`HYPOTHESES.md`) from my choices; wrote the code, tests, notebook and
+  documentation; produced the tables and figures and labelled the 300 audit pairs; drafted
+  the report.
+- **Gemini and ChatGPT:** second opinions on the topic and papers at the planning stage; no
+  text or code from them is used.
+- **My part:** I chose the topic and the papers, fixed the predictions and the primary test
+  before the full run, ran the experiments on Kaggle, read the five papers and checked the
+  comparison matrix and the published numbers against them. I am responsible for every claim.
 
 ## References
 

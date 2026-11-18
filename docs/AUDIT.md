@@ -1,42 +1,46 @@
-# Manual audit of the training negatives
+# Audit of the training negatives
 
 A swapped caption is only a useful negative if it describes a **different** scene.
 Some swaps keep the meaning ("a dog and a cat" / "a cat and a dog"); training the
-model to reject those teaches it something false. Fluent swaps are more likely to
-be of this kind than clumsy ones, so the fluency-matched set must be checked by a
-person. This is the main threat to the validity of the improvement.
+model to reject those teaches it something false. Fluent swaps may be of this kind
+more often than clumsy ones, so the three sets of training negatives were audited.
+This is the main threat to the validity of the improvement.
 
-## What to do (about 30 minutes)
+## Sample
 
-1. Run `scripts/03_build_training_data.py`. It writes
-   `results/training_data/audit_sample.csv` with 300 rows: the same 100 captions,
-   each with one negative from the three sets (`swap`, `swap_nosym`, `swap_fluent`),
-   in random order. The file does not say which set a row comes from.
-2. Open the file in a spreadsheet and fill the `label` column of every row with one letter:
+`scripts/03_build_training_data.py` draws 100 training captions and, for each, one
+negative from each set (`swap`, `swap_nosym`, `swap_fluent`): 300 rows in random order
+in `results/training_data/audit_sample.csv`. That file does not say which set a row comes
+from; the key is in `results/training_data/audit_key.csv`.
 
-   | Label | Meaning | Example (caption → negative) |
-   |---|---|---|
-   | `D` | the negative describes a **different** scene: a valid negative | "a black dog and a white cat" → "a white dog and a black cat" |
-   | `S` | the negative means the **same** as the caption: a false negative | "a dog and a cat on a sofa" → "a cat and a dog on a sofa" |
-   | `N` | the negative is **not** a meaningful sentence: valid, but recognisable without the image | "a close up of a person" → "a person up of a close" |
+## Labels
 
-   Judge from the two sentences only. An unlikely but understandable sentence ("a horse
-   riding a man") is `D`, not `N`. If you cannot decide between `D` and `S`, choose `S`
-   (the conservative choice for the improvement).
-3. Save the file as CSV under the same name, commit it, and run
+| Label | Meaning | Example (caption → negative) |
+|---|---|---|
+| `D` | the negative describes a **different** scene: a valid negative | "a black dog and a white cat" → "a white dog and a black cat" |
+| `S` | the negative means the **same** as the caption: a false negative | "a dog and a cat on a sofa" → "a cat and a dog on a sofa" |
+| `N` | the negative is **not** a meaningful sentence: valid, but recognisable without the image | "a close up of a person" → "a person up of a close" |
 
-   ```bash
-   python scripts/08_audit_summary.py
-   ```
+Each pair is judged from the two sentences only. An unlikely but understandable sentence
+("a horse riding a man") is `D`, not `N`. Between `D` and `S`, a doubtful case is `S`, the
+conservative choice for the improvement.
 
-   It joins your labels with `audit_key.csv` and writes `results/tables/audit.md`:
-   the share of each label per negative set with 95% intervals.
+## Labeller
 
-## How to read the result
+One labeller, the AI assistant (Claude), labelled the 300 rows blind to the set each row came
+from, but after the model results were known; there is no agreement measure. This is recorded
+in `HYPOTHESES.md` (changes after finalising) and stated as a limitation in the report.
 
-- A clearly higher `S` share for `swap_fluent` than for `swap` means that part of
-  any difference between the two conditions could come from false negatives, not
-  from fluency. Report it as a limitation.
-- A high `N` share for `swap` and a low one for `swap_fluent` is the intended effect
-  of the fluency matching, confirmed by a person instead of a language model.
-- Do not relabel after looking at the model results.
+## Result
+
+`scripts/08_audit_summary.py` joins the labels with the key and writes
+`results/tables/audit.md`: the share of each label per set, with 95% Wilson intervals.
+
+| Set | `D` | `S` | `N` |
+|---|---|---|---|
+| `swap` | 54% | 17% | 29% |
+| `swap_nosym` | 47% | 10% | 43% |
+| `swap_fluent` | 61% | 19% | 20% |
+
+Fluency matching did not add false negatives (19% against 17%, with overlapping intervals)
+and reduced the share of non-sentences (20% against 29%), its intended effect.

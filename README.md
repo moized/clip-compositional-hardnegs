@@ -242,19 +242,17 @@ Published and measured numbers never share a column: see `results/tables/reprodu
 
 ## AI assistance
 
-Disclosed as the brief requires; the same statement is in section 9 of the report.
+The same statement is in section 9 of the report.
 
-- **Claude (Anthropic), through Claude Code:** proposed the topic and the five papers from my
-  criteria, drafted the comparison matrix and transcribed the published numbers; proposed the
-  training conditions, controls, statistics and decision rules, and worded the pre-registered
-  predictions (`HYPOTHESES.md`) from my choices; wrote the code, tests, notebook and
-  documentation; produced the tables and figures and labelled the 300 audit pairs; drafted
-  the report.
-- **Gemini and ChatGPT:** second opinions on the topic and papers at the planning stage; no
-  text or code from them is used.
-- **My part:** I chose the topic and the papers, fixed the predictions and the primary test
-  before the full run, ran the experiments on Kaggle, read the five papers and checked the
-  comparison matrix and the published numbers against them. I am responsible for every claim.
+Claude (Anthropic), used through Claude Code, assisted with the literature search, proposed
+design options from which I chose, wrote the code, tests and notebook, produced the tables and
+figures, labelled the 300 audit pairs and wrote the first draft of the report. Gemini and
+ChatGPT gave second opinions on the topic at the planning stage.
+
+**My own work.** I chose the topic, the papers and the experimental design, fixed the
+predictions and the primary test before the full run, ran all experiments on Kaggle, read the
+five papers and checked the comparison matrix against them, and reviewed and revised the
+report. I am responsible for every claim in it.
 
 ## References
 
